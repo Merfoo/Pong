@@ -9,7 +9,8 @@ function initializeMulti()
 
     m_iBallMain.x = Math.floor(m_iMapWidth / 2);
     m_iBallMain.y = Math.floor(m_iMapHeight / 2);
-
+    m_iBallMain.r = m_iBallRadiusOriginal;
+    m_iBallMain.dr = "downRight";
     m_iPaddleBodyOne = new Array(2);
     m_iPaddleBodyTwo = new Array(2);
 
@@ -47,8 +48,8 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-    m_sBallDirectionMain = setUpBallDirection(m_iBallMain, m_sBallDirectionMain, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
-    setUpBall(m_iBallMain, m_sBallDirectionMain, getRandomColor(1, 255));
+    setUpBallDirection(m_iBallMain, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
+    setUpBall(m_iBallMain, getRandomColor(1, 255));
     setUpPaddleMulti();
     drawMapMulti();
 }
