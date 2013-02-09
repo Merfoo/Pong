@@ -11,7 +11,7 @@ var m_iBackgroundBorderWidth = 0;
 var m_iPaddleBorderWidth = 0;
 var m_iBallBorderWidth = 0;
 var m_cBackgroundColor = "#000";
-var m_cBallColor = "#000";
+var m_cBallColorMain = "#000";
 var m_cPaddleColorMain = "blue";
 
 // Paddle Lengths Related
@@ -47,9 +47,10 @@ var m_iFastSpeed = Math.floor(m_iGameSpeedMain / m_iFastDivider);
 var m_bFastMode = false;
 
 // Ball
-var m_cBallColor = "#FFF";
+var m_cBallColorMain = "#FFF";
 var m_iBallMain = { x: m_iMapWidth / 2, y: m_iMapHeight / 2 };
-var m_sBallDirection = "downRight";
+var m_iBallRadiusMain;
+var m_sBallDirectionMain = "downRight";
 
 // Messages alignment
 var m_iLeft;
@@ -157,6 +158,17 @@ function paintTile(x, y, color, borderThickness)
 {
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.fillRect((x * m_iTileWidth) + borderThickness, (y * m_iTileHeight) + borderThickness, m_iTileWidth - (borderThickness * 2), m_iTileHeight - (borderThickness * 2));
+}
+
+// Paints a circle
+function paintCircle(x, y, radius, color)
+{
+    m_CanvasContext.beginPath();
+    m_CanvasContext.fillStyle = color;
+    m_CanvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+    m_CanvasContext.stroke();
+    m_CanvasContext.closePath();
+    m_CanvasContext.fill();
 }
 
 // Shows start menu, based on argument.
@@ -411,10 +423,10 @@ function setUpBallDirection(iBall, sDirection, iPaddleArray)
     return sDirection;
 }
 
-function setUpBall(iBall, sDirection)
+function setUpBall(iBall, sDirection, color)
 {
-    paintTile(iBall.x, iBall.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
-
+    paintCircle((iBall.x * m_iTileWidth) + (m_iTileWidth / 2), (iBall.y * m_iTileHeight) + (m_iTileHeight / 2), ((m_iTileHeight + m_iTileWidth) / 2) / 2, m_cBackgroundColor);
+    
     if(sDirection == "up")
         iBall.y--;
 
@@ -444,14 +456,14 @@ function setUpBall(iBall, sDirection)
         iBall.x--;
         iBall.y++;
 
-    }
+    } 
     else if(sDirection == "downRight")
     {
         iBall.x++;
         iBall.y++;
     }
 
-    paintTile(iBall.x, iBall.y, m_cBallColor, m_iBallBorderWidth);
+    paintCircle((iBall.x * m_iTileWidth) + (m_iTileWidth / 2), (iBall.y * m_iTileHeight) + (m_iTileHeight / 2), ((m_iTileHeight + m_iTileWidth) / 2) / 2, "white");
 }
 
 // Handles setting up up paddle

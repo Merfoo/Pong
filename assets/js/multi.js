@@ -47,8 +47,8 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-    m_sBallDirection = setUpBallDirection(m_iBallMain, m_sBallDirection, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
-    setUpBall(m_iBallMain, m_sBallDirection);
+    m_sBallDirectionMain = setUpBallDirection(m_iBallMain, m_sBallDirectionMain, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
+    setUpBall(m_iBallMain, m_sBallDirectionMain, getRandomColor(1, 255));
     setUpPaddleMulti();
     drawMapMulti();
 }
@@ -57,14 +57,12 @@ function gameLoopMulti()
 function drawMapMulti()
 {
     // Food
-    m_cBallColor = getRandomColor(1, 255);
-    paintTile(m_iBallMain.x, m_iBallMain, m_cBallColor, m_iBallBorderWidth);
 
     // Prints score on top of snake game
-    writeMessage(m_iLeft, m_cPaddleColorOne, "Score One: " + m_iScoreOne);
-    writeMessage(m_iLeft + 10, m_cPaddleColorTwo, "Score Two: " + m_iScoreTwo);
-    writeMessage(m_iMiddle + 5, m_cPaddleColorOne, "Total Score One: " + m_iPaddleBodyOne[0].y);
-    writeMessage(m_iMiddle + 15, m_cPaddleColorTwo, "Total Score Two: " + m_iPaddleBodyOne[1].y);
+    //writeMessage(m_iLeft, m_cPaddleColorOne, "Score One: " + m_iScoreOne);
+    //writeMessage(m_iLeft + 10, m_cPaddleColorTwo, "Score Two: " + m_iScoreTwo);
+    //writeMessage(m_iMiddle + 5, m_cPaddleColorOne, "Total Score One: " + m_iPaddleBodyOne[0].y);
+    //writeMessage(m_iMiddle + 15, m_cPaddleColorTwo, "Total Score Two: " + m_iPaddleBodyOne[1].y);
     setSoundPicVisible(m_bSoundOn);
 }
 
