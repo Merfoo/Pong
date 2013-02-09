@@ -360,6 +360,34 @@ function setUpBallDirection(iBall, sDirection, iPaddleArray)
         return sDirection;
     }
 
+    else if (iBall.x <= 0)
+    {
+        if (sDirection == "left")
+            sDirection = "right";
+
+        else if (sDirection == "upLeft")
+            sDirection = "upRight";
+
+        else if (sDirection == "downLeft")
+            sDirection = "downRight";
+
+        return sDirection;
+    }
+
+    else if (iBall.x >= m_iMapWidth - 1)
+    {
+        if (sDirection == "right")
+            sDirection = "left";
+
+        else if (sDirection == "upRight")
+            sDirection = "upLeft";
+
+        else if (sDirection == "downRight")
+            sDirection = "downLeft";
+
+        return sDirection;
+    }
+
     for (var index = 0; index < iPaddleArray.length; index++)
     {
         if (iBall.x == iPaddleArray[index].x && iBall.y == iPaddleArray[index].y)
