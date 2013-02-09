@@ -15,7 +15,7 @@ var m_cBallColor = "#000";
 var m_cPaddleColorMain = "blue";
 
 // Paddle Lengths Related
-var m_iPaddleOriginalLength = 5;
+var m_iPaddleOriginalLength = 7;
 
 // Paddle One Related
 var m_iPaddeOneID = 1;
@@ -86,6 +86,15 @@ var m_bGameStarted = false;
 var m_bMulti = false;
 var m_bIsPaused = false;
 var m_bShownYet = false;
+
+// Keys
+var m_iKeyMap = new Array();
+var m_iArrowUpID = 38;
+var m_iArrowDownID = 40;
+var m_iWID = 87;
+var m_iSID = 83;
+var m_iEscID = 27;
+var m_iSpaceID = 32;
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
@@ -413,28 +422,26 @@ function setUpBall(iBall, sDirection)
     }
 }
 
-// Checks if the snake hit the wall or itself
-function checkCollision(snakeBody)
+// Handles setting up up paddle
+function setUpPaddle(paddleBody, sDirection)
 {
-    // Checks if snake hit the borders
-    if (snakeBody[0].x >= m_iMapWidth)
-        return true;
+    if (sDirection == "up")
+    {
+        temp = paddleBody.pop();
+        paintTile(temp.x, temp.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        temp = { x: paddleBody[0].x, y: paddleBody[0].y - 1 };
+        paddleBody.unshift(temp);
+    }
 
-    if (snakeBody[0].x < 0)
-        return true;
+    else if(sDirection == "down")
+    {
+        temp = paddleBody.shift();
+        paintTile(temp.x, temp.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        temp = { x: paddleBody[0].x, y: paddleBody[paddleBody.length - 1].y + 1 };
+        paddleBody.push(temp);
+    }
 
-    if (snakeBody[0].y >= m_iMapHeight)
-        return true;
-
-    if (snakeBody[0].y <= 0)
-        return true;
-
-    // Checks if the snakes hit themselves
-    for (var index = 1; index < snakeBody.length; index++)
-        if (snakeBody[0].x == snakeBody[index].x && snakeBody[0].y == snakeBody[index].y)
-            return true;
-
-    return false;
+    paintTile(temp.x, temp.y, m_cPaddleColorMain, m_iPaddleBorderWidth);
 }
 
 // Handles increasing the speed variable
