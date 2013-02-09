@@ -6,21 +6,30 @@ function initializeMulti()
     m_bGameStarted = true;
     m_bMulti = true;
 
-    m_iPaddleBodyOne = new Array(m_iPaddleOriginalLength);
-    m_iPaddleBodyTwo = new Array(m_iPaddleOriginalLength);
 
-    m_iPaddleBodyOne[0] = { x: m_iPaddleStartXOne, y: Math.floor((m_iMapHeight / 2) - (m_iPaddleOriginalLength / 2)) };
-    m_iPaddleBodyTwo[0] = { x: m_iPaddleStartXTwo, y: Math.floor((m_iMapHeight / 2) - (m_iPaddleOriginalLength / 2)) };
+    m_iBallMain.x = Math.floor(m_iMapWidth / 2);
+    m_iBallMain.y = Math.floor(m_iMapHeight / 2);
 
-    for (var index = 1; index < m_iPaddleOriginalLength; index++)
-    {
-        m_iPaddleBodyOne[index] = { x: m_iPaddleStartXOne, y: m_iPaddleBodyOne[index - 1].y + 1 };
-        m_iPaddleBodyTwo[index] = { x: m_iPaddleStartXTwo, y: m_iPaddleBodyTwo[index - 1].y + 1 };
-    }
+    m_iPaddleBodyOne = new Array(2);
+    m_iPaddleBodyTwo = new Array(2);
+
+    // Head
+    m_iPaddleBodyOne[0] = { x: m_iPaddleStartXOne, y: m_iPaddleStartY };
+    m_iPaddleBodyTwo[0] = { x: m_iPaddleStartXTwo, y: m_iPaddleStartY };
+
+    // Tail
+    m_iPaddleBodyOne[1] = { x: m_iPaddleStartXOne, y: m_iPaddleStartY + m_iPaddleOriginalLength - 1};
+    m_iPaddleBodyTwo[1] = { x: m_iPaddleStartXTwo, y: m_iPaddleStartY + m_iPaddleOriginalLength - 1 };
 
     for (var x = 0; x < m_iMapWidth; x++)
         for (var y = 0; y < m_iMapHeight; y++)
             y == 0 ? paintTile(x, y, "#FFF", 0) : paintTile(x, y, m_cBackgroundColor, 0);
+
+    for (var index = m_iPaddleStartY; index < m_iPaddleStartY + m_iPaddleOriginalLength; index++)
+    {
+        paintTile(m_iPaddleStartXOne, index, m_cPaddleColorMain, m_iPaddleBorderWidth);
+        paintTile(m_iPaddleStartXTwo, index, m_cPaddleColorMain, m_iPaddleBorderWidth);
+    }
 
     m_iHighestScoreOne = 0;
     m_iHighestScoreTwo = 0;
@@ -38,7 +47,8 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-
+    m_sBallDirection = setUpBallDirection(m_iBallMain, m_sBallDirection, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
+    setUpBall(m_iBallMain, m_sBallDirection);
     setUpPaddleMulti();
     drawMapMulti();
 }
@@ -50,32 +60,27 @@ function drawMapMulti()
     m_cBallColor = getRandomColor(1, 255);
     paintTile(m_iBallMain.x, m_iBallMain, m_cBallColor, m_iBallBorderWidth);
 
-    var paddleArray = m_iPaddleBodyOne.concat(m_iPaddleBodyTwo);
-    
-    for(var index = 0; index < paddleArray.length; index++)
-        paintTile(paddleArray[index].x, paddleArray[index].y, m_cPaddleColorMain, m_iPaddleBorderWidth);
-
     // Prints score on top of snake game
     writeMessage(m_iLeft, m_cPaddleColorOne, "Score One: " + m_iScoreOne);
     writeMessage(m_iLeft + 10, m_cPaddleColorTwo, "Score Two: " + m_iScoreTwo);
-    writeMessage(m_iMiddle + 5, m_cPaddleColorOne, "Total Score One: " + m_iHighestScoreOne);
-    writeMessage(m_iMiddle + 15, m_cPaddleColorTwo, "Total Score Two: " + m_iHighestScoreTwo);
+    writeMessage(m_iMiddle + 5, m_cPaddleColorOne, "Total Score One: " + m_iPaddleBodyOne[0].y);
+    writeMessage(m_iMiddle + 15, m_cPaddleColorTwo, "Total Score Two: " + m_iPaddleBodyOne[1].y);
     setSoundPicVisible(m_bSoundOn);
 }
 
 // Sets up the paddles
 function setUpPaddleMulti()
 {
-    if (m_iKeyMap[m_iArrowUpID])
+    if (m_iKeyMap[m_iWID] && m_iPaddleBodyOne[0].y > 1)
         setUpPaddle(m_iPaddleBodyOne, "up");
 
-    else if (m_iKeyMap[m_iArrowDownID])
+    else if (m_iKeyMap[m_iSID] && m_iPaddleBodyOne[1].y < m_iMapHeight - 1)
         setUpPaddle(m_iPaddleBodyOne, "down");
 
-    if (m_iKeyMap[m_iWID])
+    if (m_iKeyMap[m_iArrowUpID] && m_iPaddleBodyTwo[0].y > 1)
         setUpPaddle(m_iPaddleBodyTwo, "up");
 
-    else if (m_iKeyMap[m_iSID])
+    else if (m_iKeyMap[m_iArrowDownID] && m_iPaddleBodyTwo[1].y < m_iMapHeight - 1)
         setUpPaddle(m_iPaddleBodyTwo, "down");
 }
 
@@ -100,49 +105,51 @@ function unPauseGameMulti()
 // Handle keyboard events for multiplayer
 function keyBoardDownMultiplayer(event)
 {
-    // ASDW Controls
-    if (event.keyCode == m_iArrowUpID || event.keyCode == m_iArrowDownID)
-    {
-        // Snake 1
-        if (event.keyCode == m_iArrowUpID && m_iPaddleBodyOne[0].y > 1)   // Up arrow key was pressed.
-            m_iKeyMap[m_iArrowUpID] = true;
-
-        else if (event.keyCode == m_iArrowDownID  && m_iPaddleBodyOne[m_iPaddleBodyOne.length - 1].y < m_iMapHeight - 1)    // Down arrow key was pressed.
-            m_iKeyMap[m_iArrowDownID] = true;
-    }
-
-    // Arrow Keys
+    // ASDW Keys
     if (event.keyCode == m_iWID || event.keyCode == m_iSID)
     {
-        // Paddle Two 2
-        if (event.keyCode == m_iWID && m_iPaddleBodyTwo[0].y > 1)   // W was pressed.
+        // Paddle Two 
+        if (event.keyCode == m_iWID)    // W was pressed
             m_iKeyMap[m_iWID] = true;
 
-        else if (event.keyCode == m_iSID && m_iPaddleBodyTwo[m_iPaddleBodyTwo.length - 1].y < m_iMapHeight - 1)    // S was pressed.
+        else if (event.keyCode == m_iSID)   // S was pressed
             m_iKeyMap[m_iSID] = true;
+    }
+
+    // Arrow Controls
+    if (event.keyCode == m_iArrowUpID || event.keyCode == m_iArrowDownID)
+    {
+        // Paddle One
+        if (event.keyCode == m_iArrowUpID)  // Up arrow key was pressed.
+            m_iKeyMap[m_iArrowUpID] = true;
+
+        else if (event.keyCode == m_iArrowDownID)   // Down arrow key was pressed.   
+            m_iKeyMap[m_iArrowDownID] = true;
     }
 }
 
 function keyBoardUpMultiplayer(event)
 {
     // ASDW Controls
-    if (event.keyCode == m_iArrowUpID || event.keyCode == m_iArrowDownID) {
-        // Snake 1
-        if (event.keyCode == m_iArrowUpID)   // Up arrow key was pressed.
-            m_iKeyMap[m_iArrowUpID] = false;
-
-        else if (event.keyCode == m_iArrowDownID)    // Down arrow key was pressed.
-            m_iKeyMap[m_iArrowDownID] = false;
-    }
-
-    // Arrow Keys
-    if (event.keyCode == m_iWID || event.keyCode == m_iSID) {
-        // Paddle Two 2
+    if (event.keyCode == m_iWID || event.keyCode == m_iSID)
+    {
+        // Paddle One
         if (event.keyCode == m_iWID)   // W was pressed.
             m_iKeyMap[m_iWID] = false;
 
         else if (event.keyCode == m_iSID)    // S was pressed.
             m_iKeyMap[m_iSID] = false;
+    }
+
+    // Arrow Keys
+    if (event.keyCode == m_iArrowUpID || event.keyCode == m_iArrowDownID)
+    {
+        // Paddle Two
+        if (event.keyCode == m_iArrowUpID)   // Up arrow key was pressed.
+            m_iKeyMap[m_iArrowUpID] = false;
+
+        else if (event.keyCode == m_iArrowDownID)    // Down arrow key was pressed.
+            m_iKeyMap[m_iArrowDownID] = false;
     }
 
     else if (event.keyCode == m_iSpaceID)

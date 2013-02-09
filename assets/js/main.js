@@ -16,18 +16,19 @@ var m_cPaddleColorMain = "blue";
 
 // Paddle Lengths Related
 var m_iPaddleOriginalLength = 7;
+var m_iPaddleStartY = Math.floor((m_iMapHeight / 2) - (m_iPaddleOriginalLength / 2));
 
 // Paddle One Related
 var m_iPaddeOneID = 1;
 var m_iPaddleStartXOne = 0;
 var m_cPaddleColorOne = "red";
-var m_iPaddleBodyOne = new Array(m_iPaddleOriginalLength);
+var m_iPaddleBodyOne = new Array(2);
 
 // Paddle Two Related
 var m_iPaddeTwoID = 2;
 var m_iPaddleStartXTwo = m_iMapWidth - 1;
 var m_cPaddleColorTwo = "red";
-var m_iPaddleBodyTwo = new Array(m_iPaddleOriginalLength);
+var m_iPaddleBodyTwo = new Array(2);
 
 // Game speed
 var m_iMenuSpeed = 60;
@@ -48,6 +49,7 @@ var m_bFastMode = false;
 // Ball
 var m_cBallColor = "#FFF";
 var m_iBallMain = { x: m_iMapWidth / 2, y: m_iMapHeight / 2 };
+var m_sBallDirection = "downRight";
 
 // Messages alignment
 var m_iLeft;
@@ -383,7 +385,7 @@ function setUpBallDirection(iBall, sDirection, iPaddleArray)
 
 function setUpBall(iBall, sDirection)
 {
-    paintTile(iBall.x, iBall.y, m_cBackroundColor, 0);
+    paintTile(iBall.x, iBall.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
 
     if(sDirection == "up")
         iBall.y--;
@@ -420,6 +422,8 @@ function setUpBall(iBall, sDirection)
         iBall.x++;
         iBall.y++;
     }
+
+    paintTile(iBall.x, iBall.y, m_cBallColor, m_iBallBorderWidth);
 }
 
 // Handles setting up up paddle
@@ -427,21 +431,19 @@ function setUpPaddle(paddleBody, sDirection)
 {
     if (sDirection == "up")
     {
-        temp = paddleBody.pop();
-        paintTile(temp.x, temp.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        temp = { x: paddleBody[0].x, y: paddleBody[0].y - 1 };
-        paddleBody.unshift(temp);
+        paintTile(paddleBody[1].x, paddleBody[1].y, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paddleBody[0].y--;
+        paddleBody[1].y--;
+        paintTile(paddleBody[0].x, paddleBody[0].y, m_cPaddleColorMain, m_iPaddleBorderWidth);
     }
 
     else if(sDirection == "down")
     {
-        temp = paddleBody.shift();
-        paintTile(temp.x, temp.y, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        temp = { x: paddleBody[0].x, y: paddleBody[paddleBody.length - 1].y + 1 };
-        paddleBody.push(temp);
+        paintTile(paddleBody[0].x, paddleBody[0].y, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paddleBody[0].y++;
+        paddleBody[1].y++;
+        paintTile(paddleBody[1].x, paddleBody[1].y, m_cPaddleColorMain, m_iPaddleBorderWidth);
     }
-
-    paintTile(temp.x, temp.y, m_cPaddleColorMain, m_iPaddleBorderWidth);
 }
 
 // Handles increasing the speed variable
