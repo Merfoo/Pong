@@ -70,7 +70,7 @@ function setUpPaddleMulti()
     else if (!m_iKeyMap[m_iWID] || m_iPaddleOne.startY - m_iPaddleIncreaseOne <= 1)
         m_iPaddleIncreaseOne = m_iPaddleIncreaseOriginal;
 
-    else if (m_iKeyMap[m_iSID] && m_iPaddleOne.endY + m_iPaddleIncreaseOne < m_iMaxPixelHeight - 1)
+    if (m_iKeyMap[m_iSID] && m_iPaddleOne.endY + m_iPaddleIncreaseOne < m_iMaxPixelHeight - 1)
     {
         setUpPaddle(m_iPaddleOne, m_iPaddleIncreaseOne, "down");
         m_iPaddleIncreaseOne += m_iPaddleIncreaseRate;
@@ -89,7 +89,7 @@ function setUpPaddleMulti()
     else if(!m_iKeyMap[m_iArrowUpID] || m_iPaddleTwo.startY - m_iPaddleIncreaseTwo <= 1)
         m_iPaddleIncreaseTwo = m_iPaddleIncreaseOriginal;
 
-    else if (m_iKeyMap[m_iArrowDownID] && m_iPaddleTwo.endY + m_iPaddleIncreaseTwo < m_iMaxPixelHeight - 1)
+    if (m_iKeyMap[m_iArrowDownID] && m_iPaddleTwo.endY + m_iPaddleIncreaseTwo < m_iMaxPixelHeight - 1)
     {
         setUpPaddle(m_iPaddleTwo, m_iPaddleIncreaseTwo, "down");
         m_iPaddleIncreaseTwo += m_iPaddleIncreaseRate;

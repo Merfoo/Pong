@@ -156,10 +156,12 @@ function changeGameSpeed(intervalID, sFunction,gameSpeed)
 // Sets the canvas as big as the broswer size.
 function setCanvasSize()
 {
-    m_iTileWidth = Math.floor((window.innerWidth / m_iMapWidth));
-    m_iTileHeight = Math.floor((window.innerHeight / m_iMapHeight)) - 1;
+    m_iTileWidth = window.innerWidth / m_iMapWidth;
+    m_iTileHeight = (window.innerHeight / m_iMapHeight) - 1;
     m_CanvasContext.canvas.width = (m_iTileWidth * m_iMapWidth);
     m_CanvasContext.canvas.height = (m_iTileHeight * m_iMapHeight);
+    //m_iTileWidth = m_CanvasContext.canvas.width / m_iMapWidth;
+    //m_iTileHeight = m_CanvasContext.canvas.height / m_iMapHeight;
     m_iMaxPixelWidth = m_CanvasContext.canvas.width;
     m_iMaxPixelHeight = m_CanvasContext.canvas.height;
     m_iLeft = 1;
@@ -355,13 +357,13 @@ function createTeleportingBlocks()
 // Sets up the snake body based on direction
 function setUpBall(iBall, ballColor, iPaddleOne, iPaddleTwo)
 {
-    paintRawCircle(iBall.x, iBall.y, iBall.r, ballColor);
+    paintRawCircle(iBall.x, iBall.y, iBall.r, m_cBackgroundColor);
 
     // Checks if the ball has collided
-    if (iBall.y <= m_iToolBarThickness || iBall.y >= m_iMaxPixelHeight)
+    if (iBall.y - (iBall.r * 2) <= m_iToolBarThickness || iBall.y + (iBall.r * 2) >= m_iMaxPixelHeight)
         iBall.yV = -iBall.yV;
 
-    if (iBall.x <= 0 || iBall.x >= m_iMaxPixelWidth)
+    if (iBall.x - (iBall.r * 2)  <= 0 || iBall.x + (iBall.r * 2) >= m_iMaxPixelWidth)
         iBall.xV = -iBall.xV;
 
     if (iBall.x == iPaddleOne.x + 1 && iBall.y >= iPaddleOne.startY && iBall.y <= iPaddleOne.endY)
@@ -374,6 +376,7 @@ function setUpBall(iBall, ballColor, iPaddleOne, iPaddleTwo)
     iBall.y += iBall.yV;
 
     paintRawCircle(iBall.x, iBall.y, iBall.r, ballColor);
+    //alert(m_CanvasContext.canvas.width + "-" + iBall.x);
 }
 
 // Handles setting up up paddle
@@ -381,19 +384,19 @@ function setUpPaddle(paddleBody, iAmountIncrease, sDirection)
 {
     if (sDirection == "up")
     {
-        paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
         paddleBody.startY -= iAmountIncrease;
-        paddleBody.endY -= iAmountIncrease;paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
+        paddleBody.endY -= iAmountIncrease;
     }
 
     else if (sDirection == "down")
     {
-        paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
         paddleBody.startY += iAmountIncrease;
         paddleBody.endY += iAmountIncrease;
     }
 
-    paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
+    paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
 }
 
 // Handles increasing the speed variable
