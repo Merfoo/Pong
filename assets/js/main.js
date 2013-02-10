@@ -5,6 +5,9 @@ var m_iMapWidth = 60;
 var m_iMapHeight = 30;
 var m_iTileWidth;
 var m_iTileHeight;
+var m_iMaxPixelWidth;
+var m_iMaxPixelHeight;
+var m_iToolBarThickness;
 
 // All colors/ borders
 var m_iBackgroundBorderWidth = 0;
@@ -15,27 +18,30 @@ var m_cBallColorMain = "#000";
 var m_cPaddleColorMain = "blue";
 
 // Paddle Lengths Related
+var m_iPaddleIncreaseOriginal = 10;
+var m_iPaddleIncreaseRate = 10;
+var m_iPaddleWidth;
 var m_iPaddleOriginalLength = 7;
-var m_iPaddleStartY = Math.floor((m_iMapHeight / 2) - (m_iPaddleOriginalLength / 2));
+var m_iPaddleStartY;
 
 // Paddle One Related
 var m_iPaddeOneID = 1;
+var m_iPaddleIncreaseOne = m_iPaddleIncreaseOriginal;
 var m_iPaddleStartXOne = 0;
-var m_cPaddleColorOne = "red";
-var m_iPaddleBodyOne = new Array(2);
+var m_iPaddleOne = { x: m_iPaddleStartXOne, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
 
 // Paddle Two Related
 var m_iPaddeTwoID = 2;
+var m_iPaddleIncreaseTwo = m_iPaddleIncreaseOriginal;
 var m_iPaddleStartXTwo = m_iMapWidth - 1;
-var m_cPaddleColorTwo = "red";
-var m_iPaddleBodyTwo = new Array(2);
+var m_iPaddleTwo = { x: m_iPaddleStartXTwo, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
 
 // Game speed
 var m_iMenuSpeed = 60;
 var m_iGameSpeedOriginal = 80;
 var m_iGameSpeedMain = m_iGameSpeedOriginal;
 
-// Scores
+// Score
 var m_iScoreOne = 0;
 var m_iScoreTwo = 0;
 var m_iHighestScoreOne = 0;
@@ -49,7 +55,7 @@ var m_bFastMode = false;
 // Ball
 var m_iBallRadiusOriginal = ((m_iTileHeight + m_iTileWidth) / 2) / 2;
 var m_cBallColorMain = "#FFF";
-var m_iBallMain = { x: m_iMapWidth / 2, y: m_iMapHeight / 2, r: m_iBallRadiusOriginal, dr: "downRight"};
+var m_iBallMain = { x: m_iMaxPixelWidth / 2, y: m_iMaxPixelHeight / 2, r: m_iBallRadiusOriginal, xV: 30, yV: 30 };//dr: "downRight"};
 
 // Messages alignment
 var m_iLeft;
@@ -111,7 +117,13 @@ function initializeCanvas()
     m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
     setCanvasSize();
     setUpLetters();
+    m_iToolBarThickness = m_iTileHeight;
     m_iBallRadiusOriginal = ((m_iTileHeight + m_iTileWidth) / 2) / 2;
+    m_iBallMain = { x: (m_iMapWidth * m_iTileWidth) / 2, y: (m_iMapHeight * m_iTileHeight) / 2, r: m_iBallRadiusOriginal, xV: 30, yV: 30 };
+    m_iPaddleWidth = m_iTileWidth - 10;
+    m_iPaddleStartXOne = 1;
+    m_iPaddleStartXTwo = m_iMaxPixelWidth - m_iPaddleWidth;
+    m_iPaddleStartY = Math.floor((m_iMaxPixelHeight / 2) - ((m_iPaddleOriginalLength * m_iTileHeight) / 2));
 
     var isChrome = /chrome/.test(navigator.userAgent.toLowerCase());
     
@@ -148,25 +160,26 @@ function setCanvasSize()
     m_iTileHeight = Math.floor((window.innerHeight / m_iMapHeight)) - 1;
     m_CanvasContext.canvas.width = (m_iTileWidth * m_iMapWidth);
     m_CanvasContext.canvas.height = (m_iTileHeight * m_iMapHeight);
+    m_iMaxPixelWidth = m_CanvasContext.canvas.width;
+    m_iMaxPixelHeight = m_CanvasContext.canvas.height;
     m_iLeft = 1;
     m_iMiddle = Math.floor((m_iMapWidth / 2) - 6);
     m_iRight = Math.floor((m_iMapWidth) - 10);
 }
 
-// Paints a tile on the screen, handles converting pixel to tile.
-function paintTile(x, y, color, borderThickness)
+// Paints a rectangle by pixels
+function paintRawTile(startX, startY, width, height, color, borderThickness)
 {
     m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillRect((x * m_iTileWidth) + borderThickness, (y * m_iTileHeight) + borderThickness, m_iTileWidth - (borderThickness * 2), m_iTileHeight - (borderThickness * 2));
+    m_CanvasContext.fillRect(startX + borderThickness, startY + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2));
 }
 
-// Paints a circle
-function paintCircle(x, y, radius, color)
+// Paints a circle using pixels
+function paintRawCircle(x, y, radius, color)
 {
-    //paintCircle((iBall.x * m_iTileWidth) + (m_iTileWidth / 2), (iBall.y * m_iTileHeight) + (m_iTileHeight / 2), ((m_iTileHeight + m_iTileWidth) / 2) / 2, m_cBackgroundColor
     m_CanvasContext.beginPath();
     m_CanvasContext.fillStyle = color;
-    m_CanvasContext.arc((x * m_iTileWidth) + (m_iTileWidth / 2), (y * m_iTileHeight) + (m_iTileHeight / 2), radius, 0, 2 * Math.PI);
+    m_CanvasContext.arc(x, y, radius, 0, 2 * Math.PI);
     m_CanvasContext.stroke();
     m_CanvasContext.closePath();
     m_CanvasContext.fill();
@@ -193,14 +206,12 @@ function showStartMenu(bVisible)
 function paintStartMenu()
 {
     // Paints Whole screen black
-    for (var x = 0; x < m_iMapWidth; x++)
-        for (var y = 0; y < m_iMapHeight; y++)
-            paintTile(x, y, m_cBackgroundColor, 0);
+    paintRawTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, m_cBackgroundColor, m_iBackgroundBorderWidth);
 
     var tempArray = m_cP.concat(m_cO, m_cN, m_cG);
 
     for (var index = 0; index < tempArray.length; index++)
-        paintTile(tempArray[index].x, tempArray[index].y, getRandomColor(1, 255), 0);
+        paintRawTile(tempArray[index].x * m_iTileWidth, tempArray[index].y * m_iTileHeight, m_iTileWidth, m_iTileHeight, getRandomColor(1, 255), 1);
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -342,136 +353,47 @@ function createTeleportingBlocks()
 }
 
 // Sets up the snake body based on direction
-function setUpBallDirection(iBall, iPaddleArray)
+function setUpBall(iBall, ballColor, iPaddleOne, iPaddleTwo)
 {
+    paintRawCircle(iBall.x, iBall.y, iBall.r, ballColor);
+
     // Checks if the ball has collided
-    if (iBall.y <= 1)
-    {
-        if (iBall.dr == "up")
-            iBall.dr = "down";
+    if (iBall.y <= m_iToolBarThickness || iBall.y >= m_iMaxPixelHeight)
+        iBall.yV = -iBall.yV;
 
-        else if (iBall.dr == "upLeft")
-            iBall.dr = "downLeft";
+    if (iBall.x <= 0 || iBall.x >= m_iMaxPixelWidth)
+        iBall.xV = -iBall.xV;
 
-        else if (iBall.dr == "upRight")
-            iBall.dr = "downRight";
-    }
+    if (iBall.x == iPaddleOne.x + 1 && iBall.y >= iPaddleOne.startY && iBall.y <= iPaddleOne.endY)
+        iBall.xV = -iBall.xV;
 
-    else if (iBall.y >= m_iMapHeight - 1)
-    {
-        if (iBall.dr == "down")
-            iBall.dr = "up";
+    if (iBall.x == iPaddleTwo.x - 1 && iBall.y >= iPaddleTwo.startY && iBall.y <= iPaddleTwo.endY) 
+        iBall.xV = -iBall.xV;
 
-        else if (iBall.dr == "downLeft")
-            iBall.dr = "upLeft";
+    iBall.x += iBall.xV;
+    iBall.y += iBall.yV;
 
-        else if (iBall.dr == "downRight")
-            iBall.dr = "upRight";
-    }
-
-    else if (iBall.x <= 0)
-    {
-        if (iBall.dr == "left")
-            iBall.dr = "right";
-
-        else if (iBall.dr == "upLeft")
-            iBall.dr = "upRight";
-
-        else if (iBall.dr == "downLeft")
-            iBall.dr = "downRight";
-    }
-
-    else if (iBall.x >= m_iMapWidth - 1)
-    {
-        if (iBall.dr == "right")
-            iBall.dr = "left";
-
-        else if (iBall.dr == "upRight")
-            iBall.dr = "upLeft";
-
-        else if (iBall.dr == "downRight")
-            iBall.dr = "downLeft";
-    }
-
-    for (var index = 0; index < iPaddleArray.length; index++)
-    {
-        if (iBall.x == iPaddleArray[index].x && iBall.y == iPaddleArray[index].y)
-        {
-            if (iBall.dr == "upRight")
-                iBall.dr = "upLeft";
-
-            else if (iBall.dr == "downRight")
-                iBall.dr = "downLeft";
-
-            else if (iBall.dr == "upLeft")
-                iBall.dr = "upRight";
-
-            else if (iBall.dr == "downLeft")
-                iBall.dr = "downRight";
-        }
-    }
-}
-
-function setUpBall(iBall,color)
-{
-    paintCircle(iBall.x, iBall.y, iBall.r, m_cBackgroundColor);
-
-    if(iBall.dr == "up")
-        iBall.y--;
-
-    else if(iBall.dr == "down")
-        iBall.y++;
-
-    else if(iBall.dr == "left")
-        iBall.x--;
-
-    else if(iBall.dr == "right")
-        iBall.x++;
-
-    else if(iBall.dr == "upLeft")
-    {
-        iBall.x--;
-        iBall.y--;
-    }
-
-    else if(iBall.dr == "upRight")
-    {
-        iBall.x++;
-        iBall.y--;
-    }
-
-    else if(iBall.dr == "downLeft")
-    {
-        iBall.x--;
-        iBall.y++;
-
-    } 
-    else if(iBall.dr == "downRight")
-    {
-        iBall.x++;
-        iBall.y++;
-    }
-paintCircle(iBall.x, iBall.y, iBall.r, "white");
+    paintRawCircle(iBall.x, iBall.y, iBall.r, ballColor);
 }
 
 // Handles setting up up paddle
-function setUpPaddle(paddleBody, sDirection)
+function setUpPaddle(paddleBody, iAmountIncrease, sDirection)
 {
     if (sDirection == "up")
     {
-        paintTile(paddleBody[1].x, paddleBody[1].y, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        paddleBody[0].y--;
-        paddleBody[1].y--;
-        paintTile(paddleBody[0].x, paddleBody[0].y, m_cPaddleColorMain, m_iPaddleBorderWidth);
+        paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paddleBody.startY -= iAmountIncrease;
+        paddleBody.endY -= iAmountIncrease;paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
     }
 
     else if (sDirection == "down")
     {
-        paintTile(paddleBody[0].x, paddleBody[0].y, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        paddleBody[0].y++;
-        paddleBody[1].y++;
-        paintTile(paddleBody[1].x, paddleBody[1].y, m_cPaddleColorMain, m_iPaddleBorderWidth);
+        paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
+        paddleBody.startY += iAmountIncrease;
+        paddleBody.endY += iAmountIncrease;
     }
+
+    paintRawTile(paddleBody.x * m_iTileWidth, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
 }
 
 // Handles increasing the speed variable

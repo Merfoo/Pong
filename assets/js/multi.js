@@ -6,31 +6,21 @@ function initializeMulti()
     m_bGameStarted = true;
     m_bMulti = true;
 
-
-    m_iBallMain.x = Math.floor(m_iMapWidth / 2);
-    m_iBallMain.y = Math.floor(m_iMapHeight / 2);
+    // Ball
+    m_iBallMain.x = m_iMaxPixelWidth/2;
+    m_iBallMain.y = m_iMaxPixelHeight/2;
     m_iBallMain.r = m_iBallRadiusOriginal;
-    m_iBallMain.dr = "downRight";
-    m_iPaddleBodyOne = new Array(2);
-    m_iPaddleBodyTwo = new Array(2);
+    m_iBallMain.xV = 30;
+    m_iBallMain.yV = 30;
 
-    // Head
-    m_iPaddleBodyOne[0] = { x: m_iPaddleStartXOne, y: m_iPaddleStartY };
-    m_iPaddleBodyTwo[0] = { x: m_iPaddleStartXTwo, y: m_iPaddleStartY };
+    // Paddles
+    m_iPaddleOne = { x: m_iPaddleStartXOne, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
+    m_iPaddleTwo = { x: m_iPaddleStartXTwo, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
 
-    // Tail
-    m_iPaddleBodyOne[1] = { x: m_iPaddleStartXOne, y: m_iPaddleStartY + m_iPaddleOriginalLength - 1};
-    m_iPaddleBodyTwo[1] = { x: m_iPaddleStartXTwo, y: m_iPaddleStartY + m_iPaddleOriginalLength - 1 };
-
-    for (var x = 0; x < m_iMapWidth; x++)
-        for (var y = 0; y < m_iMapHeight; y++)
-            y == 0 ? paintTile(x, y, "#FFF", 0) : paintTile(x, y, m_cBackgroundColor, 0);
-
-    for (var index = m_iPaddleStartY; index < m_iPaddleStartY + m_iPaddleOriginalLength; index++)
-    {
-        paintTile(m_iPaddleStartXOne, index, m_cPaddleColorMain, m_iPaddleBorderWidth);
-        paintTile(m_iPaddleStartXTwo, index, m_cPaddleColorMain, m_iPaddleBorderWidth);
-    }
+    paintRawTile(0, 0, m_iMaxPixelWidth, m_iTileHeight, "#FFF", 0);
+    paintRawTile(0, m_iTileHeight, m_iMapWidth * m_iTileWidth, (m_iMapHeight * m_iTileHeight) - m_iTileHeight, m_cBackgroundColor, m_iBackgroundBorderWidth);
+    paintRawTile(m_iPaddleOne.x, m_iPaddleOne.startY, m_iPaddleWidth, m_iPaddleOne.endY - m_iPaddleOne.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
+    paintRawTile(m_iPaddleTwo.x, m_iPaddleTwo.startY, m_iPaddleWidth, m_iPaddleTwo.endY - m_iPaddleTwo.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
 
     m_iHighestScoreOne = 0;
     m_iHighestScoreTwo = 0;
@@ -48,8 +38,8 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-    setUpBallDirection(m_iBallMain, m_iPaddleBodyOne.concat(m_iPaddleBodyTwo));
-    setUpBall(m_iBallMain, getRandomColor(1, 255));
+    setUpBall(m_iBallMain, getRandomColor(1, 255), m_iPaddleOne, m_iPaddleTwo);
+    //setUpBall(m_iBallMain, getRandomColor(1, 255));
     setUpPaddleMulti();
     drawMapMulti();
 }
@@ -60,27 +50,53 @@ function drawMapMulti()
     // Food
 
     // Prints score on top of snake game
-    //writeMessage(m_iLeft, m_cPaddleColorOne, "Score One: " + m_iScoreOne);
-    //writeMessage(m_iLeft + 10, m_cPaddleColorTwo, "Score Two: " + m_iScoreTwo);
-    //writeMessage(m_iMiddle + 5, m_cPaddleColorOne, "Total Score One: " + m_iPaddleBodyOne[0].y);
-    //writeMessage(m_iMiddle + 15, m_cPaddleColorTwo, "Total Score Two: " + m_iPaddleBodyOne[1].y);
+    //writeMessage(m_iLeft, m_cPaddleColorMain, "Score One: " + m_iScoreOne);
+    //writeMessage(m_iLeft + 10, m_cPaddleColorMain, "Score Two: " + m_iScoreTwo);
+    //writeMessage(m_iMiddle + 5, m_cPaddleColorMain, "Total Score One: " + m_iPaddleOne[0].y);
+    //writeMessage(m_iMiddle + 15, m_cPaddleColorMain, "Total Score Two: " + m_iPaddleOne[1].y);
     setSoundPicVisible(m_bSoundOn);
 }
 
 // Sets up the paddles
 function setUpPaddleMulti()
 {
-    if (m_iKeyMap[m_iWID] && m_iPaddleBodyOne[0].y > 1)
-        setUpPaddle(m_iPaddleBodyOne, "up");
+    // Paddle One
+    if (m_iKeyMap[m_iWID] && m_iPaddleOne.startY - m_iPaddleIncreaseOne > 1)
+    {
+        setUpPaddle(m_iPaddleOne, m_iPaddleIncreaseOne, "up");
+        m_iPaddleIncreaseOne += m_iPaddleIncreaseRate;
+    }
 
-    else if (m_iKeyMap[m_iSID] && m_iPaddleBodyOne[1].y < m_iMapHeight - 1)
-        setUpPaddle(m_iPaddleBodyOne, "down");
+    else if (!m_iKeyMap[m_iWID] || m_iPaddleOne.startY - m_iPaddleIncreaseOne <= 1)
+        m_iPaddleIncreaseOne = m_iPaddleIncreaseOriginal;
 
-    if (m_iKeyMap[m_iArrowUpID] && m_iPaddleBodyTwo[0].y > 1)
-        setUpPaddle(m_iPaddleBodyTwo, "up");
+    else if (m_iKeyMap[m_iSID] && m_iPaddleOne.endY + m_iPaddleIncreaseOne < m_iMaxPixelHeight - 1)
+    {
+        setUpPaddle(m_iPaddleOne, m_iPaddleIncreaseOne, "down");
+        m_iPaddleIncreaseOne += m_iPaddleIncreaseRate;
+    }
 
-    else if (m_iKeyMap[m_iArrowDownID] && m_iPaddleBodyTwo[1].y < m_iMapHeight - 1)
-        setUpPaddle(m_iPaddleBodyTwo, "down");
+    else if (!m_iKeyMap[m_iSID] || m_iPaddleOne.endY + m_iPaddleIncreaseOne >= m_iMaxPixelHeight - 1)
+        m_iPaddleIncreaseOne = m_iPaddleIncreaseOriginal;
+
+    // Paddle Two
+    if (m_iKeyMap[m_iArrowUpID] && m_iPaddleTwo.startY - m_iPaddleIncreaseTwo > 1)
+    {
+        setUpPaddle(m_iPaddleTwo, m_iPaddleIncreaseTwo, "up");
+        m_iPaddleIncreaseTwo += m_iPaddleIncreaseRate;
+    }
+
+    else if(!m_iKeyMap[m_iArrowUpID] || m_iPaddleTwo.startY - m_iPaddleIncreaseTwo <= 1)
+        m_iPaddleIncreaseTwo = m_iPaddleIncreaseOriginal;
+
+    else if (m_iKeyMap[m_iArrowDownID] && m_iPaddleTwo.endY + m_iPaddleIncreaseTwo < m_iMaxPixelHeight - 1)
+    {
+        setUpPaddle(m_iPaddleTwo, m_iPaddleIncreaseTwo, "down");
+        m_iPaddleIncreaseTwo += m_iPaddleIncreaseRate;
+    }
+
+    else if (!m_iKeyMap[m_iArrowDownID] || m_iPaddleTwo.endY + m_iPaddleIncreaseTwo >= m_iMaxPixelHeight - 1)
+        m_iPaddleIncreaseTwo = m_iPaddleIncreaseOriginal;
 }
 
 // Stops loop
