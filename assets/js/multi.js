@@ -23,71 +23,25 @@ function gameLoopMulti()
 {
     playBackgroundMusic();
     setUpBall(m_iBallMain, getRandomColor(1, 255));
-    setUpPaddleMulti();
-    paintPaddle(m_iPaddleOne, m_iPaddleOne.color);
-    paintPaddle(m_iPaddleTwo, m_iPaddleTwo.color);
+    movePaddle(m_iPaddleOne);
+    movePaddle(m_iPaddleTwo);
     
     if(hitPaddleOne(m_iBallMain))
-        m_iBallMain.xV = -m_iBallMain.xV;
+    {    
+        ballDirectionChanger(m_iBallMain, m_iPaddleOne);
+    
+    }
     
     if(hitPaddleTwo(m_iBallMain))
-        m_iBallMain.xV = -m_iBallMain.xV;
+    {
+        ballDirectionChanger(m_iBallMain, m_iPaddleTwo);
+        
+    }
     
     if(outOfBounds(m_iBallMain))
         initializeBall();
     
     paintToolbar(m_iMap.toolbarColor);
-    writeMessage(m_iMessageAlignment.left, m_iBallMain.y + m_iBallMain.radius, "white");
-}
-
-// Sets up the paddles
-function setUpPaddleMulti()
-{
-    // Paddle One
-    if (m_iKeyMap[m_iKeyId.w] && m_iPaddleOne.topY > m_iMap.toolbarThickness)
-    {
-        if((m_iPaddleOne.velocity += m_iPaddleOne.increaseRate) >= m_iPaddleOne.maxV)
-            m_iPaddleOne.velocity = m_iPaddleOne.maxV;
-        
-        setUpPaddle(m_iPaddleOne, m_iPaddleOne.velocity, "up");
-    }
-
-    else if (m_iKeyMap[m_iKeyId.s] && m_iPaddleOne.bottomY < m_iMap.height - 1)
-    {
-        if((m_iPaddleOne.velocity += m_iPaddleOne.increaseRate) >= m_iPaddleOne.maxV)
-            m_iPaddleOne.velocity = m_iPaddleOne.maxV;
-            
-        setUpPaddle(m_iPaddleOne, m_iPaddleOne.velocity, "down");
-    }
-    
-    else if (!m_iKeyMap[m_iKeyId.w] && !m_iKeyMap[m_iKeyId.s])
-        m_iPaddleOne.velocity = 0;
-
-    else if(m_iPaddleOne.topY <= m_iMap.toolbarThickness || m_iPaddleTwo.bottomY >= m_iMap.height - 1)
-        m_iPaddleOne.velocity = 0;
-
-    // Paddle Two
-    if (m_iKeyMap[m_iKeyId.arrowUp] && m_iPaddleTwo.topY > m_iMap.toolbarThickness)
-    {
-       if((m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate) >= m_iPaddleTwo.maxV)
-           m_iPaddleTwo.velocity = m_iPaddleTwo.maxV;
-           
-        setUpPaddle(m_iPaddleTwo, m_iPaddleTwo.velocity, "up");
-    }
-
-    else if (m_iKeyMap[m_iKeyId.arrowDown] && m_iPaddleTwo.bottomY < m_iMap.height - 1)
-    {
-        if((m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate) >= m_iPaddleTwo.maxV)
-           m_iPaddleTwo.velocity = m_iPaddleTwo.maxV;
-       
-        setUpPaddle(m_iPaddleTwo, m_iPaddleTwo.velocity, "down");
-    }
-    
-    else if(!m_iKeyMap[m_iKeyId.arrowUp] || !m_iKeyMap[m_iKeyId.arrowDown])
-        m_iPaddleTwo.velocity = 0;
-
-    else if (m_iPaddleTwo.topY <= m_iMap.toolbarThickness || m_iPaddleTwo.bottomY >= m_iMap.height - 1)
-        m_iPaddleTwo.velocity = 0;
 }
 
 // Stops loop
@@ -111,52 +65,36 @@ function unPauseGameMulti()
 // Handle keyboard events for multiplayer
 function keyBoardDownMulti(event)
 {
-    // ASDW Controls
-    if (event.keyCode == m_iKeyId.w || event.keyCode == m_iKeyId.s)
-    {
-        // Paddle One
-        if (event.keyCode == m_iKeyId.w)   // W was pressed.
-            m_iKeyMap[m_iKeyId.w] = true;
+    // Paddle One
+    if (event.keyCode == m_iKeyId.w)   // W was pressed.
+        m_iPaddleOne.up = true;
 
-        else if (event.keyCode == m_iKeyId.s)    // S was pressed.
-            m_iKeyMap[m_iKeyId.s] = true;
-    }
+    else if (event.keyCode == m_iKeyId.s)    // S was pressed.
+        m_iPaddleOne.down = true;
 
-    // Arrow Keys
-    if (event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
-    {
-        // Paddle Two
-        if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
-            m_iKeyMap[m_iKeyId.arrowUp] = true;
+    // Paddle Two
+    if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+        m_iPaddleTwo.up = true;
 
-        else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
-            m_iKeyMap[m_iKeyId.arrowDown] = true;
-    }
+    else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+        m_iPaddleTwo.down = true;
 }
 
 function keyBoardUpMulti(event)
 {
-    // ASDW Controls
-    if (event.keyCode == m_iKeyId.w || event.keyCode == m_iKeyId.s)
-    {
-        // Paddle One
-        if (event.keyCode == m_iKeyId.w)   // W was pressed.
-            m_iKeyMap[m_iKeyId.w] = false;
+    // Paddle One
+    if (event.keyCode == m_iKeyId.w)   // W was pressed.
+        m_iPaddleOne.up = false;
 
-        else if (event.keyCode == m_iKeyId.s)    // S was pressed.
-            m_iKeyMap[m_iKeyId.s] = false;
-    }
+    else if (event.keyCode == m_iKeyId.s)    // S was pressed.
+        m_iPaddleOne.down = false;
 
-    // Arrow Keys
-    if (event.keyCode == m_iKeyId.arrowUp || event.keyCode == m_iKeyId.arrowDown)
-    {
-        // Paddle Two
-        if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
-            m_iKeyMap[m_iKeyId.arrowUp] = false;
+    // Paddle Two
+    if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+        m_iPaddleTwo.up = false;
 
-        else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
-            m_iKeyMap[m_iKeyId.arrowDown] = false;
-    }
+    else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+        m_iPaddleTwo.down = false;
 
     if (event.keyCode == m_iKeyId.space)
         m_bGameStatus.isPaused ? unPauseGameMulti() : pauseGameMulti();

@@ -7,6 +7,9 @@ var m_iMap;
 var m_iPaddleOne;
 var m_iPaddleTwo;
 
+// Paddle Directions
+var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
+
 // Ball
 var m_iBallMain;
 
@@ -32,7 +35,6 @@ var m_IntervalId = { menu: null, game: null};
 var m_bGameStatus = { started: false, paused: false, multi: false};
 
 // Keys
-var m_iKeyMap = new Array();
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32};
 
 window.addEventListener('keydown', doKeyDown, true);
@@ -304,33 +306,10 @@ function setUpBall(iBall, ballColor)
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
          iBall.yV = -iBall.yV;
 
-//    if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMap.width && iBall.x > 0))
-//        iBall.xV = -iBall.xV;
-    
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
 
     paintCircle(iBall, ballColor);
-}
-
-// Handles setting up up paddle
-function setUpPaddle(iPaddle, iAmountIncrease, sDirection)
-{
-    paintPaddle(iPaddle, m_iMap.backgroundColor);
-    
-    if (sDirection == "up")
-    {
-        iPaddle.topY -= iAmountIncrease;
-        iPaddle.bottomY -= iAmountIncrease;
-    }
-
-    else if (sDirection == "down")
-    {
-        iPaddle.topY += iAmountIncrease;
-        iPaddle.bottomY += iAmountIncrease;
-    }
-
-    paintPaddle(iPaddle, iPaddle.color);
 }
 
 // Handles increasing the speed variable
@@ -402,6 +381,7 @@ function setUpLetters()
 
 function initializeBall()
 {
+    var iBallMaxVelocity = 20;
     var iBallRadius = Math.floor(((m_iMap.width / 60) + (m_iMap.height / 30)) / 4);
     var iBallStartX = Math.floor(m_iMap.width / 2);
     var iBallStartY = Math.floor(m_iMap.height / 2);
@@ -411,17 +391,18 @@ function initializeBall()
         x: iBallStartX,
         y: iBallStartY,
         radius: iBallRadius,
-        xV: iBallRadius,
-        yV: iBallRadius,
+        xV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
+        yV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
+        maxVelocity: iBallMaxVelocity,
         color: "blue"
     };
 }
 // Initializes the paddles
 function initializePaddles()
 {
-    var iPaddleV = 4;
-    var iPaddleMaxV = 20;
-    var iPaddleThickness = Math.floor(m_iMap.width / 100);
+    var iPaddleV = 3;
+    var iPaddleMaxV = 24;
+    var iPaddleThickness = Math.floor(m_iMap.width / 75);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;
     
@@ -434,6 +415,8 @@ function initializePaddles()
         velocity: iPaddleV,
         increaseRate: iPaddleV,
         maxV: iPaddleMaxV,
+        up: false,
+        down: false,
         color: "red"
     };
     
@@ -446,6 +429,8 @@ function initializePaddles()
         velocity: iPaddleV,
         increaseRate: iPaddleV,
         maxV: iPaddleMaxV,
+        up: false,
+        down: false,
         color: "blue"
     };
 }
@@ -479,4 +464,61 @@ function outOfBounds(iBall)
         return true;
     
     return false;
+}
+
+// Handles changing ball direction if it paddle, including ball direction modification.
+function ballDirectionChanger(iBall, iPaddle)
+{
+    iBall.xV = -iBall.xV;
+    iBall.yV += iPaddle.velocity;
+    
+    if(iBall.yV > iBall.maxVelocity)
+        iBall.yV = iBall.maxVelocity;
+    
+    else if(iBall.yV < -iBall.maxVelocity)
+        iBall.yV = -iBall.maxVelocity;
+}
+
+// Moves the paddles
+function movePaddle(iPaddle)
+{
+    if(iPaddle.up || iPaddle.down)
+    {
+        paintPaddle(iPaddle, m_iMap.backgroundColor);
+        
+        if(iPaddle.up)
+        {
+            if(iPaddle.velocity > 0)
+                iPaddle.velocity = 0;
+            
+            if((iPaddle.velocity -= iPaddle.increaseRate) <= -iPaddle.maxV)
+                iPaddle.velocity = -iPaddle.maxV;
+            
+            if(iPaddle.topY + iPaddle.velocity > m_iMap.toolbarThickness)
+            {
+                iPaddle.topY += iPaddle.velocity;
+                iPaddle.bottomY += iPaddle.velocity;
+            }
+        }
+        
+        else if(iPaddle.down)
+        {
+            if(iPaddle.velocity < 0)
+                iPaddle.velocity = 0;
+            
+            if((iPaddle.velocity += iPaddle.increaseRate) >= iPaddle.maxV)
+                iPaddle.velocity = iPaddle.maxV;
+            
+            if(iPaddle.bottomY + iPaddle.velocity < m_iMap.height)
+            {
+                iPaddle.topY += iPaddle.velocity;
+                iPaddle.bottomY += iPaddle.velocity;
+            }
+        }
+    }
+    
+    else if(!iPaddle.up && !iPaddle.down || iPaddle.topY < m_iMap.toolbarThickness || iPaddle.bottomY > m_iMap.height)
+        iPaddle.velocity = 0;
+    
+    paintPaddle(iPaddle, iPaddle.color);
 }
