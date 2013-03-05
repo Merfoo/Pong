@@ -418,8 +418,8 @@ function initializeBall()
 // Initializes the paddles
 function initializePaddles()
 {
-    var iPaddleMaxV = 25;
-    var iPaddleV = 10;//Math.floor(m_iMap.height / 10);
+    var iPaddleV = 5;
+    var iPaddleMaxV = 20;
     var iPaddleThickness = Math.floor(m_iMap.width / 100);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;

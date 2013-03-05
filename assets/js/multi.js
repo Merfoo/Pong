@@ -34,39 +34,47 @@ function setUpPaddleMulti()
     // Paddle One
     if (m_iKeyMap[m_iKeyId.w] && m_iPaddleOne.topY > m_iMap.toolbarThickness)
     {
-        m_iPaddleOne.velocity += m_iPaddleOne.increaseRate;
+        if((m_iPaddleOne.velocity += m_iPaddleOne.increaseRate) >= m_iPaddleOne.maxV)
+            m_iPaddleOne.velocity = m_iPaddleOne.maxV;
+        
         setUpPaddle(m_iPaddleOne, m_iPaddleOne.velocity, "up");
     }
 
-    if (!m_iKeyMap[m_iKeyId.w] || m_iPaddleOne.topY <= m_iMap.toolbarThickness)
-        m_iPaddleOne.velocity = 0;
-
-    if (m_iKeyMap[m_iKeyId.s] && m_iPaddleOne.bottomY < m_iMap.height - 1)
+    else if (m_iKeyMap[m_iKeyId.s] && m_iPaddleOne.bottomY < m_iMap.height - 1)
     {
-        m_iPaddleOne.velocity += m_iPaddleOne.increaseRate;
+        if((m_iPaddleOne.velocity += m_iPaddleOne.increaseRate) >= m_iPaddleOne.maxV)
+            m_iPaddleOne.velocity = m_iPaddleOne.maxV;
+            
         setUpPaddle(m_iPaddleOne, m_iPaddleOne.velocity, "down");
     }
+    
+    else if (!m_iKeyMap[m_iKeyId.w] && !m_iKeyMap[m_iKeyId.s])
+        m_iPaddleOne.velocity = 0;
 
-    if (!m_iKeyMap[m_iKeyId.s] || m_iPaddleOne.bottomY >= m_iMap.height - 1)
+    else if(m_iPaddleOne.topY <= m_iMap.toolbarThickness || m_iPaddleTwo.bottomY >= m_iMap.height - 1)
         m_iPaddleOne.velocity = 0;
 
     // Paddle Two
     if (m_iKeyMap[m_iKeyId.arrowUp] && m_iPaddleTwo.topY > m_iMap.toolbarThickness)
     {
-        m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate;
+       if((m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate) >= m_iPaddleTwo.maxV)
+           m_iPaddleTwo.velocity = m_iPaddleTwo.maxV;
+           
         setUpPaddle(m_iPaddleTwo, m_iPaddleTwo.velocity, "up");
     }
 
-    if(!m_iKeyMap[m_iKeyId.arrowUp] || m_iPaddleTwo.topY <= m_iMap.toolbarThickness)
-        m_iPaddleTwo.velocity = 0;
-
-    if (m_iKeyMap[m_iKeyId.arrowDown] && m_iPaddleTwo.bottomY < m_iMap.height - 1)
+    else if (m_iKeyMap[m_iKeyId.arrowDown] && m_iPaddleTwo.bottomY < m_iMap.height - 1)
     {
-        m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate;
+        if((m_iPaddleTwo.velocity += m_iPaddleTwo.increaseRate) >= m_iPaddleTwo.maxV)
+           m_iPaddleTwo.velocity = m_iPaddleTwo.maxV;
+       
         setUpPaddle(m_iPaddleTwo, m_iPaddleTwo.velocity, "down");
     }
+    
+    else if(!m_iKeyMap[m_iKeyId.arrowUp] || !m_iKeyMap[m_iKeyId.arrowDown])
+        m_iPaddleTwo.velocity = 0;
 
-    if (!m_iKeyMap[m_iKeyId.arrowDown] || m_iPaddleTwo.bottomY >= m_iMap.height - 1)
+    else if (m_iPaddleTwo.topY <= m_iMap.toolbarThickness || m_iPaddleTwo.bottomY >= m_iMap.height - 1)
         m_iPaddleTwo.velocity = 0;
 }
 
