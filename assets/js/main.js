@@ -261,17 +261,18 @@ function resetScores()
 // Plays background music if mute is off
 function playBackgroundMusic()
 {
+    
     if (m_Music.soundOn)
     {
-        if (m_Music.background.ended)
+        if (m_Music.background.ended())
         {
-            var  iNewMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
+            var  iNewMusicIndex = getRandomNumber(0, m_Music.musicList.length - 1);
 
-            while(iNewMusicIndex == m_iPrevMusicIndex)
-                iNewMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
+            while(iNewMusicIndex == m_Music.prevIndex)
+                iNewMusicIndex = getRandomNumber(0, m_Music.musicList.length - 1);
 
-            m_iPrevMusicIndex = iNewMusicIndex;
-            m_Music.background.src = m_MusicList[m_iPrevMusicIndex];
+            m_Music.prevIndex = iNewMusicIndex;
+            m_Music.background.src = m_Music.musicList[m_Music.prevIndex];
         }
 
         m_Music.background.play();
@@ -291,7 +292,7 @@ function stopBackgroundMusic()
 function playBallMusic()
 {
     if(m_Music.soundOn)
-        m_BallMusic.play();
+        m_Music.ball.play();
 }
 
 // Handles the ball hitting the wall boundaries.
@@ -303,8 +304,8 @@ function setUpBall(iBall, ballColor)
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
          iBall.yV = -iBall.yV;
 
-    if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMap.width && iBall.x > 0))
-        iBall.xV = -iBall.xV;
+//    if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMap.width && iBall.x > 0))
+//        iBall.xV = -iBall.xV;
     
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
@@ -418,7 +419,7 @@ function initializeBall()
 // Initializes the paddles
 function initializePaddles()
 {
-    var iPaddleV = 5;
+    var iPaddleV = 4;
     var iPaddleMaxV = 20;
     var iPaddleThickness = Math.floor(m_iMap.width / 100);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
@@ -447,4 +448,35 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         color: "blue"
     };
+}
+
+// Checks if the ball hit the first paddle
+function hitPaddleOne(iBall)
+{
+    // Checks if the ball hit the paddle
+    if(iBall.y + iBall.radius >= m_iPaddleOne.topY && iBall.y - iBall.radius <= m_iPaddleOne.bottomY)
+       if(iBall.x - iBall.radius <= m_iPaddleOne.rightX)
+           return true;
+     
+    return false;
+}
+
+// Checks if the ball hit the second paddle
+function hitPaddleTwo(iBall)
+{
+    // Checks if the ball hit the paddle
+    if(iBall.y + iBall.radius >= m_iPaddleTwo.topY && iBall.y - iBall.radius <= m_iPaddleTwo.bottomY)
+       if(iBall.x + iBall.radius >= m_iPaddleTwo.leftX)
+            return true;
+     
+    return false;
+}
+
+// Checks if the ball went out of bounds
+function outOfBounds(iBall)
+{
+    if(iBall.x > m_iMap.width || iBall.x < 0)
+        return true;
+    
+    return false;
 }

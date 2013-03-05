@@ -26,6 +26,18 @@ function gameLoopMulti()
     setUpPaddleMulti();
     paintPaddle(m_iPaddleOne, m_iPaddleOne.color);
     paintPaddle(m_iPaddleTwo, m_iPaddleTwo.color);
+    
+    if(hitPaddleOne(m_iBallMain))
+        m_iBallMain.xV = -m_iBallMain.xV;
+    
+    if(hitPaddleTwo(m_iBallMain))
+        m_iBallMain.xV = -m_iBallMain.xV;
+    
+    if(outOfBounds(m_iBallMain))
+        initializeBall();
+    
+    paintToolbar(m_iMap.toolbarColor);
+    writeMessage(m_iMessageAlignment.left, m_iBallMain.y + m_iBallMain.radius, "white");
 }
 
 // Sets up the paddles
