@@ -1,130 +1,60 @@
 // This file conatins all variables used with different variations of the game, and some useful functions
 
-// Map Related
-var m_iMapWidth = 60;
-var m_iMapHeight = 30;
-var m_iTileWidth;
-var m_iTileHeight;
-var m_iMaxPixelWidth;
-var m_iMaxPixelHeight;
-var m_iToolBarThickness;
+// Contains map width, map height, color and toolbar thickness
+var m_iMap;
 
-// All colors/ borders
-var m_iBackgroundBorderWidth = 0;
-var m_iPaddleBorderWidth = 0;
-var m_iBallBorderWidth = 0;
-var m_cBackgroundColor = "#000";
-var m_cBallColorMain = "#000";
-var m_cPaddleColorMain = "blue";
-
-// Paddle Lengths Related
-var m_iPaddleIncreaseOriginal = 10;
-var m_iPaddleIncreaseRate = 10;
-var m_iPaddleWidth;
-var m_iPaddleOriginalLength = 7;
-var m_iPaddleStartY;
-
-// Paddle One Related
-var m_iPaddeOneID = 1;
-var m_iPaddleIncreaseOne = m_iPaddleIncreaseOriginal;
-var m_iPaddleStartXOne = 0;
-var m_iPaddleOne = { x: m_iPaddleStartXOne, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
-
-// Paddle Two Related
-var m_iPaddeTwoID = 2;
-var m_iPaddleIncreaseTwo = m_iPaddleIncreaseOriginal;
-var m_iPaddleStartXTwo = m_iMapWidth - 1;
-var m_iPaddleTwo = { x: m_iPaddleStartXTwo, startY: m_iPaddleStartY, endY: m_iPaddleStartY + (m_iPaddleOriginalLength * m_iTileHeight) };
-
-// Game speed
-var m_iMenuSpeed = 60;
-var m_iGameSpeedOriginal = 80;
-var m_iGameSpeedMain = m_iGameSpeedOriginal;
-
-// Score
-var m_iScoreOne = 0;
-var m_iScoreTwo = 0;
-var m_iHighestScoreOne = 0;
-var m_iHighestScoreTwo = 0;
-
-// Fast Speed
-var m_iFastDivider = 4;
-var m_iFastSpeed = Math.floor(m_iGameSpeedMain / m_iFastDivider);
-var m_bFastMode = false;
+// Paddle Related
+var m_iPaddleOne;
+var m_iPaddleTwo;
 
 // Ball
-var m_iBallRadiusOriginal = ((m_iTileHeight + m_iTileWidth) / 2) / 2;
-var m_cBallColorMain = "#FFF";
-var m_iBallMain = { x: m_iMaxPixelWidth / 2, y: m_iMaxPixelHeight / 2, r: m_iBallRadiusOriginal, xV: 30, yV: 30 };//dr: "downRight"};
+var m_iBallMain;
 
-// Messages alignment
-var m_iLeft;
-var m_iMiddle;
-var m_iRight;
+// Contains speed variables like menu, game
+var m_iSpeed = { menu: 60, gameOriginal: 80, game: 80 };
 
-// Teleporting Blocks
-var m_cTeleporterColors = new Array("white", "red", "blue", "yellow", "green");
-var m_iTeleporters = new Array()
-var m_iTeleporteMax = 5;
+// Contains scores like current, highest
+var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0};
 
-// Sound Related
-var m_sDirectory = "assets/music/";
-var m_MusicList = new Array(m_sDirectory + "Ephixia - Zelda Remix.mp3", m_sDirectory + "Song One.mp3", m_sDirectory + "Song Two.mp3", m_sDirectory + "Song Three.mp3");
-var m_iPrevMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
-var m_BallMusic = new Audio(m_sDirectory + "Food.mp3");
-var m_BackgroundMusic = new Audio(m_MusicList[m_iPrevMusicIndex]);
-var m_bSoundOn = true;
+// Messages alignment for toolbar
+var m_iMessageAlignment;
 
-// Lettering
-var m_cP = new Array(20);
-var m_cO = new Array(17);
-var m_cN = new Array(18);
-var m_cG = new Array(15);
+// Contains music list like ball, background
+var m_Music;
 
 // HTML5 Elemtents
 var m_CanvasContext;
 
 // Interval ID's
-var m_IntervalMenu;
-var m_IntervalIDMain;
+var m_IntervalId = { menu: null, game: null};
 
-// Game version related.
-var m_iGameVersion = 0;
-var m_bGameStarted = false;
-var m_bMulti = false;
-var m_bIsPaused = false;
-var m_bShownYet = false;
+// Game status, like if it has started, which is current
+var m_bGameStatus = { started: false, paused: false, multi: false};
 
 // Keys
 var m_iKeyMap = new Array();
-var m_iArrowUpID = 38;
-var m_iArrowDownID = 40;
-var m_iWID = 87;
-var m_iSID = 83;
-var m_iEscID = 27;
-var m_iSpaceID = 32;
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32};
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
-document.addEventListener("DOMContentLoaded", initializeCanvas, false);
+document.addEventListener("DOMContentLoaded", initializeGame, false);
 document.documentElement.style.overflowX = 'hidden';	 // Horizontal scrollbar will be hidden
 document.documentElement.style.overflowY = 'hidden';     // Vertical scrollbar will be hidden
 
 // Initialize canvas
-function initializeCanvas()
+function initializeGame()
 {
-    // Get canvas context for drawing, add events
-    m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
+    setUpMusic();
     setCanvasSize();
     setUpLetters();
-    m_iToolBarThickness = m_iTileHeight;
-    m_iBallRadiusOriginal = ((m_iTileHeight + m_iTileWidth) / 2) / 2;
-    m_iBallMain = { x: (m_iMapWidth * m_iTileWidth) / 2, y: (m_iMapHeight * m_iTileHeight) / 2, r: m_iBallRadiusOriginal, xV: 30, yV: 30 };
-    m_iPaddleWidth = m_iTileWidth - 10;
-    m_iPaddleStartXOne = 1;
-    m_iPaddleStartXTwo = m_iMaxPixelWidth - m_iPaddleWidth;
-    m_iPaddleStartY = Math.floor((m_iMaxPixelHeight / 2) - ((m_iPaddleOriginalLength * m_iTileHeight) / 2));
-
+    
+    m_iMessageAlignment = 
+    {
+        left: 5,
+        middle: Math.floor(m_iMap.width / 2),
+        right: Math.floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
+    };
+    
     var isChrome = /chrome/.test(navigator.userAgent.toLowerCase());
     
     if(!isChrome)
@@ -136,12 +66,8 @@ function initializeCanvas()
 // Starts game
 function startGame(iGameVersion)
 {
-    m_iGameVersion = iGameVersion;
-
-    if (m_iGameVersion == 1)
+    if (iGameVersion == 1)
         initializeMulti();
-
-    m_iGameVersion = 1;
 }
 
 // Changes gamespeed
@@ -153,67 +79,131 @@ function changeGameSpeed(intervalID, sFunction,gameSpeed)
     return intervalID;
 }
 
-// Sets the canvas as big as the broswer size.
+// Sets the canvas as big as the broswer size
 function setCanvasSize()
 {
-    m_iTileWidth = window.innerWidth / m_iMapWidth;
-    m_iTileHeight = (window.innerHeight / m_iMapHeight) - 1;
-    m_CanvasContext.canvas.width = (m_iTileWidth * m_iMapWidth);
-    m_CanvasContext.canvas.height = (m_iTileHeight * m_iMapHeight);
-    //m_iTileWidth = m_CanvasContext.canvas.width / m_iMapWidth;
-    //m_iTileHeight = m_CanvasContext.canvas.height / m_iMapHeight;
-    m_iMaxPixelWidth = m_CanvasContext.canvas.width;
-    m_iMaxPixelHeight = m_CanvasContext.canvas.height;
-    m_iLeft = 1;
-    m_iMiddle = Math.floor((m_iMapWidth / 2) - 6);
-    m_iRight = Math.floor((m_iMapWidth) - 10);
+    var iMaxWidth;
+    var iMaxHeight;
+    m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
+    
+    // The more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+    if (typeof window.innerWidth != 'undefined')
+    {
+        iMaxWidth = window.innerWidth;
+        iMaxHeight = window.innerHeight;
+    }
+    
+    // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
+    else if (typeof document.documentElement != 'undefined'
+		&& typeof document.documentElement.clientWidth != 'undefined'
+		&& document.documentElement.clientWidth != 0)
+    {
+        iMaxWidth = document.documentElement.clientWidth;
+        iMaxHeight = document.documentElement.clientHeight;
+    }
+
+    // Older versions of IE
+    else
+    {
+        iMaxWidth = document.getElementsByTagName('body')[0].clientWidth;
+        iMaxHeight = document.getElementsByTagName('body')[0].clientHeight;
+    }
+    
+    m_iMap = 
+    {
+        height: iMaxHeight, 
+        width: iMaxWidth,
+        toolbarThickness: Math.floor(iMaxHeight / 25),
+        toolbarColor: "black",
+        backgroundColor: "black"
+    };
+    
+    m_CanvasContext.canvas.width = m_iMap.width;
+    m_CanvasContext.canvas.height = m_iMap.height -= Math.floor(m_iMap.height/100);
 }
 
-// Paints a rectangle by pixels
-function paintRawTile(startX, startY, width, height, color, borderThickness)
+// Sets up the music
+function setUpMusic()
 {
-    m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillRect(startX + borderThickness, startY + borderThickness, width - (borderThickness * 2), height - (borderThickness * 2));
-}
+    var a = document.createElement('audio');
+    var sDirectory = "assets/music/";
+    var musicList = new Array(sDirectory + "Ephixia - Zelda Remix.mp3", sDirectory + "Song One.mp3", sDirectory + "Song Two.mp3", sDirectory + "Song Three.mp3");
+    var iPrevIndex = getRandomNumber(0, musicList.length - 1);
+    var ballMusic;
+            
+    // Sets up music
+    if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, '')))
+        ballMusic = new Audio(sDirectory + "Food.mp3");
 
-// Paints a circle using pixels
-function paintRawCircle(x, y, radius, color)
-{
-    m_CanvasContext.beginPath();
-    m_CanvasContext.fillStyle = color;
-    m_CanvasContext.arc(x, y, radius, 0, 2 * Math.PI);
-    m_CanvasContext.stroke();
-    m_CanvasContext.closePath();
-    m_CanvasContext.fill();
+    else
+    {
+        musicList = new Array(sDirectory + "Ephixia - Zelda Remix.ogg", sDirectory + "Song One.ogg", sDirectory + "Song Two.ogg", sDirectory + "Song Three.ogg");
+        ballMusic = new Audio(sDirectory + "Food.ogg"); 
+    }
+	
+    m_Music = 
+    {
+        musicList: musicList,
+        prevIndex: iPrevIndex,
+        background: new Audio(musicList[iPrevIndex]),
+        ball: ballMusic,
+        soundOn: false
+    };
 }
 
 // Shows start menu, based on argument.
 function showStartMenu(bVisible)
 {
-    if (!m_bShownYet && bVisible)
+    if (bVisible)
     {
-        document.getElementById("startMenu").style.zIndex = 1;
-        m_IntervalMenu = window.setInterval("paintStartMenu();", m_iMenuSpeed);
-        m_bShownYet = true;
+        showPausePic(false);
+        resetScores();
+        document.getElementById("startMenu").style.zIndex = 1;        
+        m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
 
     else
     {
         document.getElementById("startMenu").style.zIndex = -1;
         window.clearInterval(m_IntervalMenu);
-        m_bShownYet = false;
+        paintToolbar(m_iMap.toolbarColor);
+        paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
     }
+}
+
+// Paints toolbar back to regular
+function paintToolbar(color)
+{
+    paintTile(0, 0, m_iMap.width, m_iMap.toolbarThickness, color);
+}
+
+// Paints a rectangle by pixels
+function paintTile(startX, startY, width, height, color)
+{
+    m_CanvasContext.fillStyle = color;
+    m_CanvasContext.fillRect(startX, startY, width, height);
+}
+
+// Paints a circle using pixels
+function paintCircle(iBall, color)
+{
+    m_CanvasContext.beginPath();
+    m_CanvasContext.fillStyle = color;
+    m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
+    m_CanvasContext.stroke();
+    m_CanvasContext.closePath();
+    m_CanvasContext.fill();
 }
 
 function paintStartMenu()
 {
     // Paints Whole screen black
-    paintRawTile(0, 0, m_iMaxPixelWidth, m_iMaxPixelHeight, m_cBackgroundColor, m_iBackgroundBorderWidth);
+    paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.color);
+}
 
-    var tempArray = m_cP.concat(m_cO, m_cN, m_cG);
-
-    for (var index = 0; index < tempArray.length; index++)
-        paintRawTile(tempArray[index].x * m_iTileWidth, tempArray[index].y * m_iTileHeight, m_iTileWidth, m_iTileHeight, getRandomColor(1, 255), 1);
+function paintPaddle(iPaddle, color)
+{
+    paintTile(iPaddle.leftX, iPaddle.topY, iPaddle.rightX - iPaddle.leftX, iPaddle.bottomY - iPaddle.topY, color);
 }
 
 // Shows pause pause if true, otherwise hides it.
@@ -229,9 +219,9 @@ function showPausePic(bVisible)
 // Sets the sound on pause on visible
 function setSoundPicVisible(bOn)
 {
-    m_bSoundOn = bOn;
+    m_Music.soundOn = bOn;
 
-    if (m_bSoundOn)
+    if (m_Music.soundOn)
     {
         document.getElementById("soundOn").style.zIndex = 1;
         document.getElementById("soundOff").style.zIndex = -1;
@@ -244,46 +234,36 @@ function setSoundPicVisible(bOn)
     }
 }
 
-// Sets the fast pause visible
-function setFastPicVisible(bVisible)
-{
-    m_bFastMode = bVisible;
-
-    if (m_bFastMode)
-    {
-        document.getElementById("fastMode").style.zIndex = 1;
-        document.getElementById("slowMode").style.zIndex = -1;
-    }
-
-    else {
-        document.getElementById("fastMode").style.zIndex = -1;
-        document.getElementById("slowMode").style.zIndex = 1;
-    }
-}
-
-// Hides fast pic, show slow pic
-function hideFastPic()
-{
-    document.getElementById("fastMode").style.zIndex = -1;
-    document.getElementById("slowMode").style.zIndex = -1;
-}
-
 // Writes message to corresponding tile, with specified colour
-function writeMessage(startTile, color, message)
+function writeMessage(startTile, message, color)
 {
-    m_CanvasContext.fillStyle = 'white';
-    m_CanvasContext.fillRect(startTile * m_iTileWidth, 0, message.length * 12, m_iTileHeight);
-    m_CanvasContext.font = '16pt Calibri';
+    m_CanvasContext.font = (m_iMap.toolbarThickness - 10)  + 'pt Calibri';
     m_CanvasContext.fillStyle = color;
-    m_CanvasContext.fillText(message, startTile * m_iTileWidth, 20);
+    m_CanvasContext.fillText(message, startTile, m_iMap.toolbarThickness - 5);
+}
+
+// Resets the status's about the game
+function resetGameStatus()
+{
+    m_bGameStatus.started = false;
+    m_bGameStatus.paused = false;
+    m_bGameStatus.multi = false;
+}
+
+function resetScores()
+{
+    m_iScores.one = 0;
+    m_iScores.two = 0;
+    m_iScores.highestOne = 0;
+    m_iScores.highestTwo = 0;
 }
 
 // Plays background music if mute is off
 function playBackgroundMusic()
 {
-    if (m_bSoundOn)
+    if (m_Music.soundOn)
     {
-        if (m_BackgroundMusic.ended)
+        if (m_Music.background.ended)
         {
             var  iNewMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
 
@@ -291,112 +271,65 @@ function playBackgroundMusic()
                 iNewMusicIndex = getRandomNumber(0, m_MusicList.length - 1);
 
             m_iPrevMusicIndex = iNewMusicIndex;
-            m_BackgroundMusic.src = m_MusicList[m_iPrevMusicIndex];
+            m_Music.background.src = m_MusicList[m_iPrevMusicIndex];
         }
 
-        m_BackgroundMusic.play();
+        m_Music.background.play();
     }
 
     else
-        m_BackgroundMusic.pause();
-}
-
-// Resets background music to zero
-function resetBackgroundMusic()
-{
-    m_BackgroundMusic.currentTime = 0;
+        m_Music.background.pause();
 }
 
 // Stops background music
 function stopBackgroundMusic()
 {
-    m_BackgroundMusic.pause();
+    m_Music.background.pause();
 }
 
 // Plays food music
-function playFoodMusic()
+function playBallMusic()
 {
-    if(m_bSoundOn)
-        m_FoodMusic.play();
+    if(m_Music.soundOn)
+        m_BallMusic.play();
 }
 
-// Checks if the snake it a teleporter, if so teleports it
-function runTeleporters(iBall)
-{
-    for (var index = 0; index < m_iTeleporters.length; index++)
-    {
-        if (iBall.x == m_iTeleporters[index].x && iBall.y == m_iTeleporters[index].y)
-        {
-            if (index % 2 == 0)
-            {
-                index++;
-                iBall.x = m_iTeleporters[index].x;
-                iBall.y = m_iTeleporters[index].y;
-            }
+// Handles the ball hitting the wall boundaries.
+function setUpBall(iBall, ballColor)
+{ 
+    paintCircle(iBall, m_iMap.backgroundColor);
+    
+    // Checks if the ball has collided with the walls
+    if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
+         iBall.yV = -iBall.yV;
 
-            else
-            {
-                index--;
-                iBall.x = m_iTeleporters[index].x;
-                iBall.y = m_iTeleporters[index].y;
-            }
-        }
-    }
-}
-
-// Creates a pair of teleporters
-function createTeleportingBlocks()
-{
-    var teleporterColor = m_cTeleporterColors[m_iTeleporters.length / 2];
-    var newTeleporterA = { x: getRandomNumber(2, m_iMapWidth - 2), y: getRandomNumber(2, m_iMapHeight - 2), color: teleporterColor };
-    m_iTeleporters.push(newTeleporterA);
-    var newTeleporterB = { x: getRandomNumber(2, m_iMapWidth - 2), y: getRandomNumber(2, m_iMapHeight - 2), color: teleporterColor };
-    m_iTeleporters.push(newTeleporterB);
-}
-
-// Sets up the snake body based on direction
-function setUpBall(iBall, ballColor, iPaddleOne, iPaddleTwo)
-{
-    paintRawCircle(iBall.x, iBall.y, iBall.r, m_cBackgroundColor);
-
-    // Checks if the ball has collided
-    if (iBall.y - (iBall.r * 2) <= m_iToolBarThickness || iBall.y + (iBall.r * 2) >= m_iMaxPixelHeight)
-        iBall.yV = -iBall.yV;
-
-    if (iBall.x - (iBall.r * 2)  <= 0 || iBall.x + (iBall.r * 2) >= m_iMaxPixelWidth)
+    if ((iBall.x - iBall.radius <= 0 && iBall.x < 0) || (iBall.x + iBall.radius >= m_iMap.width && iBall.x > 0))
         iBall.xV = -iBall.xV;
-
-    if (iBall.x == iPaddleOne.x + 1 && iBall.y >= iPaddleOne.startY && iBall.y <= iPaddleOne.endY)
-        iBall.xV = -iBall.xV;
-
-    if (iBall.x == iPaddleTwo.x - 1 && iBall.y >= iPaddleTwo.startY && iBall.y <= iPaddleTwo.endY) 
-        iBall.xV = -iBall.xV;
-
+    
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
 
-    paintRawCircle(iBall.x, iBall.y, iBall.r, ballColor);
-    //alert(m_CanvasContext.canvas.width + "-" + iBall.x);
+    paintCircle(iBall, ballColor);
 }
 
 // Handles setting up up paddle
-function setUpPaddle(paddleBody, iAmountIncrease, sDirection)
+function setUpPaddle(iPaddle, iAmountIncrease, sDirection)
 {
+    paintPaddle(iPaddle, m_iMap.backgroundColor);
+    
     if (sDirection == "up")
     {
-        paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        paddleBody.startY -= iAmountIncrease;
-        paddleBody.endY -= iAmountIncrease;
+        iPaddle.topY -= iAmountIncrease;
+        iPaddle.bottomY -= iAmountIncrease;
     }
 
     else if (sDirection == "down")
     {
-        paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cBackgroundColor, m_iBackgroundBorderWidth);
-        paddleBody.startY += iAmountIncrease;
-        paddleBody.endY += iAmountIncrease;
+        iPaddle.topY += iAmountIncrease;
+        iPaddle.bottomY += iAmountIncrease;
     }
 
-    paintRawTile(paddleBody.x, paddleBody.startY, m_iPaddleWidth, paddleBody.endY - paddleBody.startY, m_cPaddleColorMain, m_iPaddleBorderWidth);
+    paintPaddle(iPaddle, iPaddle.color);
 }
 
 // Handles increasing the speed variable
@@ -408,23 +341,23 @@ function increaseSpeed(iGameSpeed)
 // Handles the changing direction of the snake.
 function doKeyDown(event) {
 
-    if (m_bGameStarted && !m_bIsPaused)
+    if (m_bGameStatus.started && !m_bGameStatus.isPaused)
     {
-        if (m_bMulti)
-            keyBoardDownMultiplayer(event);
+        if (m_bGameStatus.multi)
+            keyBoardDownMulti(event);
     }
 }
 
 // Handles key up events
 function doKeyUp(event)
 {
-    if (m_bGameStarted)
+    if (m_bGameStatus.started)
     {
-        if (m_bMulti)
-            keyBoardUpMultiplayer(event);
+        if (m_bGameStatus.multi)
+            keyBoardUpMulti(event);
 
         if (event.keyCode == 77)    // 'm' was pressed.
-            m_bSoundOn = !m_bSoundOn;
+            m_Music.soundOn = !m_Music.soundOn;
     }
 }
 
@@ -432,9 +365,9 @@ function doKeyUp(event)
 function getRandomColor(iMin, iMax)
 {
     // creating a random number between iMin and iMax
-    var r = getRandomNumber(iMin, iMax)
-    var g = getRandomNumber(iMin, iMax)
-    var b = getRandomNumber(iMin, iMax)
+    var r = getRandomNumber(iMin, iMax);
+    var g = getRandomNumber(iMin, iMax);
+    var b = getRandomNumber(iMin, iMax);
 
     // going from decimal to hex
     var hexR = r.toString(16);
@@ -462,96 +395,56 @@ function getRandomNumber(iMin, iMax)
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
 }
 
-// Capitalizes first leter of string.
-function capitalizeFirst(sArg)
-{
-    return sArg.charAt(0).toUpperCase() + sArg.slice(1);
-}
-
 function setUpLetters()
 {
-    var index = 0;
-
-    // P
-    m_cP[index++] = {x: 19, y: 3};
-    m_cP[index++] = {x: 18, y: 3};
-    m_cP[index++] = {x: 17, y: 3};
-    m_cP[index++] = {x: 16, y: 3};      
-    m_cP[index++] = { x: 15, y: 3 };    // 5
-    m_cP[index++] = { x: 15, y: 4 };
-    m_cP[index++] = { x: 15, y: 5 };
-    m_cP[index++] = { x: 15, y: 6 };
-    m_cP[index++] = { x: 19, y: 6 };
-    m_cP[index++] = { x: 18, y: 6 };    // 10
-    m_cP[index++] = { x: 17, y: 6 };
-    m_cP[index++] = { x: 16, y: 6 };
-    m_cP[index++] = { x: 19, y: 7 };
-    m_cP[index++] = { x: 19, y: 8 };
-    m_cP[index++] = { x: 19, y: 9 };    // 15
-    m_cP[index++] = { x: 15, y: 9 };
-    m_cP[index++] = { x: 16, y: 9 };
-    m_cP[index++] = { x: 17, y: 9 };
-    m_cP[index++] = { x: 18, y: 9 };
-    m_cP[index++] = { x: 19, y: 9 };    // 20
-    index = 0;
-
-    // N
-    m_cO[index++] = { x: 21, y: 3 };
-    m_cO[index++] = { x: 22, y: 3 };
-    m_cO[index++] = { x: 23, y: 3 };
-    m_cO[index++] = { x: 24, y: 3 };
-    m_cO[index++] = { x: 25, y: 3 };    // 5
-    m_cO[index++] = { x: 21, y: 4 };
-    m_cO[index++] = { x: 21, y: 5 };
-    m_cO[index++] = { x: 21, y: 6 };
-    m_cO[index++] = { x: 21, y: 7 };
-    m_cO[index++] = { x: 21, y: 8 };    // 10
-    m_cO[index++] = { x: 21, y: 9 };
-    m_cO[index++] = { x: 25, y: 4 };
-    m_cO[index++] = { x: 25, y: 5 };
-    m_cO[index++] = { x: 25, y: 6 };
-    m_cO[index++] = { x: 25, y: 7 };    // 15
-    m_cO[index++] = { x: 25, y: 8 };
-    m_cO[index++] = { x: 25, y: 9 };
-    index = 0;
-
-    // N
-    m_cN[index++] = { x: 30, y: 3 };
-    m_cN[index++] = { x: 29, y: 3 };
-    m_cN[index++] = { x: 28, y: 3 };
-    m_cN[index++] = { x: 27, y: 4 };
-    m_cN[index++] = { x: 27, y: 5 };    // 5
-    m_cN[index++] = { x: 27, y: 6 };
-    m_cN[index++] = { x: 27, y: 7 };
-    m_cN[index++] = { x: 27, y: 8 };
-    m_cN[index++] = { x: 27, y: 9 }; 
-    m_cN[index++] = { x: 31, y: 4 };    // 10
-    m_cN[index++] = { x: 31, y: 5 };
-    m_cN[index++] = { x: 31, y: 6 };
-    m_cN[index++] = { x: 31, y: 7 };
-    m_cN[index++] = { x: 31, y: 8 };
-    m_cN[index++] = { x: 31, y: 9 };    // 15
-    m_cN[index++] = { x: 28, y: 6 };
-    m_cN[index++] = { x: 29, y: 6 };
-    m_cN[index++] = { x: 30, y: 6 };
-    index = 0;
-
-    // G
-    m_cG[index++] = { x: 33, y: 3 };
-    m_cG[index++] = { x: 33, y: 4 };
-    m_cG[index++] = { x: 33, y: 5 };
-    m_cG[index++] = { x: 33, y: 6 };
-    m_cG[index++] = { x: 33, y: 7 };    // 5
-    m_cG[index++] = { x: 33, y: 8 };
-    m_cG[index++] = { x: 33, y: 9 };
-    m_cG[index++] = { x: 27, y: 8 };
-    m_cG[index++] = { x: 27, y: 9 };
-    m_cG[index++] = { x: 34, y: 6 };    // 10
-    m_cG[index++] = { x: 35, y: 5 };
-    m_cG[index++] = { x: 35, y: 7 };
-    m_cG[index++] = { x: 36, y: 4 };
-    m_cG[index++] = { x: 36, y: 8 };
-    m_cG[index++] = { x: 37, y: 3 };
-    m_cG[index++] = { x: 37, y: 9 };    // 15
-    index = 0;
 } 
+
+function initializeBall()
+{
+    var iBallRadius = Math.floor(((m_iMap.width / 60) + (m_iMap.height / 30)) / 4);
+    var iBallStartX = Math.floor(m_iMap.width / 2);
+    var iBallStartY = Math.floor(m_iMap.height / 2);
+    
+    m_iBallMain = 
+    {
+        x: iBallStartX,
+        y: iBallStartY,
+        radius: iBallRadius,
+        xV: iBallRadius,
+        yV: iBallRadius,
+        color: "blue"
+    };
+}
+// Initializes the paddles
+function initializePaddles()
+{
+    var iPaddleMaxV = 25;
+    var iPaddleV = 10;
+    var iPaddleThickness = Math.floor(m_iMap.width / 100);
+    var iPaddleLenght = Math.floor(m_iMap.height / 4);
+    var iPaddleDistance = 5;
+    
+    m_iPaddleOne = 
+    {
+        leftX: iPaddleDistance,
+        rightX: iPaddleDistance + iPaddleThickness,
+        topY: Math.floor(m_iMap.height / 2) - Math.floor(iPaddleLenght / 2),
+        bottomY: Math.floor(m_iMap.height / 2) + Math.floor(iPaddleLenght / 2),
+        velocity: iPaddleV,
+        increaseRate: iPaddleV,
+        maxV: iPaddleMaxV,
+        color: "red"
+    };
+    
+    m_iPaddleTwo = 
+    {
+        leftX: m_iMap.width - iPaddleThickness - iPaddleDistance,
+        rightX: m_iMap.width - iPaddleDistance,
+        topY: Math.floor(m_iMap.height / 2) - Math.floor(iPaddleLenght / 2),
+        bottomY: Math.floor(m_iMap.height / 2) + Math.floor(iPaddleLenght / 2),
+        velocity: iPaddleV,
+        increaseRate: iPaddleV,
+        maxV: iPaddleMaxV,
+        color: "blue"
+    };
+}
