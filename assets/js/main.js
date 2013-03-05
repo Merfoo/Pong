@@ -11,7 +11,7 @@ var m_iPaddleTwo;
 var m_iBallMain;
 
 // Contains speed variables like menu, game
-var m_iSpeed = { menu: 60, gameOriginal: 80, game: 80 };
+var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
 
 // Contains scores like current, highest
 var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0};
@@ -419,7 +419,7 @@ function initializeBall()
 function initializePaddles()
 {
     var iPaddleMaxV = 25;
-    var iPaddleV = 10;
+    var iPaddleV = 10;//Math.floor(m_iMap.height / 10);
     var iPaddleThickness = Math.floor(m_iMap.width / 100);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;
