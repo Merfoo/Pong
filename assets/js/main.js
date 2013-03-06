@@ -3,6 +3,9 @@
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
 
+// Middle line
+var m_iMiddleLine;
+
 // Paddle Related
 var m_iPaddleOne;
 var m_iPaddleTwo;
@@ -17,7 +20,7 @@ var m_iBallMain;
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
 
 // Contains scores like current, highest
-var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0};
+var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0, color: "white"};
 
 // Messages alignment for toolbar
 var m_iMessageAlignment;
@@ -117,7 +120,22 @@ function setCanvasSize()
         width: iMaxWidth,
         toolbarThickness: Math.floor(iMaxHeight / 25),
         toolbarColor: "black",
-        backgroundColor: "black"
+        backgroundColor: "black",
+        right: 1,
+        left: -1,
+        none: 0
+    };
+    
+    var iMiddleX = Math.floor((m_iMap.width / 2) - (m_iMap.width / 250));
+    var iMiddleHeight = Math.floor(m_iMap.height / 25);
+    
+    m_iMiddleLine = 
+    {
+        x: iMiddleX,
+        width: (Math.floor(m_iMap.width / 2) - iMiddleX) * 2, 
+        height: iMiddleHeight,
+        spaceInBetween: 25,
+        color: "gray"
     };
     
     m_CanvasContext.canvas.width = m_iMap.width;
@@ -149,7 +167,7 @@ function setUpMusic()
         prevIndex: iPrevIndex,
         background: new Audio(musicList[iPrevIndex]),
         ball: ballMusic,
-        soundOn: false
+        soundOn: true
     };
 }
 
@@ -158,7 +176,9 @@ function showStartMenu(bVisible)
 {
     if (bVisible)
     {
+        paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
         showPausePic(false);
+        resetGameStatus();
         resetScores();
         document.getElementById("startMenu").style.zIndex = 1;        
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
@@ -179,6 +199,13 @@ function paintToolbar(color)
     paintTile(0, 0, m_iMap.width, m_iMap.toolbarThickness, color);
 }
 
+// Paint the line in the middle
+function paintMiddleLine()
+{
+    for(var y = m_iMap.toolbarThickness; y < m_iMap.height; y += m_iMiddleLine.height + m_iMiddleLine.spaceInBetween)
+        paintTile(m_iMiddleLine.x, y, m_iMiddleLine.width, m_iMiddleLine.height, m_iMiddleLine.color);
+}
+
 // Paints a rectangle by pixels
 function paintTile(startX, startY, width, height, color)
 {
@@ -187,7 +214,7 @@ function paintTile(startX, startY, width, height, color)
 }
 
 // Paints a circle using pixels
-function paintCircle(iBall, color)
+function paintBall(iBall, color)
 {
     m_CanvasContext.beginPath();
     m_CanvasContext.fillStyle = color;
@@ -248,7 +275,7 @@ function writeMessage(startTile, message, color)
 function resetGameStatus()
 {
     m_bGameStatus.started = false;
-    m_bGameStatus.paused = false;
+    m_bGameStatus.isPaused = false;
     m_bGameStatus.multi = false;
 }
 
@@ -266,7 +293,7 @@ function playBackgroundMusic()
     
     if (m_Music.soundOn)
     {
-        if (m_Music.background.ended())
+        if (m_Music.background.ended)
         {
             var  iNewMusicIndex = getRandomNumber(0, m_Music.musicList.length - 1);
 
@@ -300,7 +327,7 @@ function playBallMusic()
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintCircle(iBall, m_iMap.backgroundColor);
+    paintBall(iBall, m_iMap.backgroundColor);
     
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
@@ -309,7 +336,7 @@ function setUpBall(iBall, ballColor)
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
 
-    paintCircle(iBall, ballColor);
+    paintBall(iBall, ballColor);
 }
 
 // Handles increasing the speed variable
@@ -394,9 +421,10 @@ function initializeBall()
         xV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         yV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         maxVelocity: iBallMaxVelocity,
-        color: "blue"
+        color: "white"
     };
 }
+
 // Initializes the paddles
 function initializePaddles()
 {
@@ -417,7 +445,7 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "red"
+        color: "white"
     };
     
     m_iPaddleTwo = 
@@ -431,7 +459,7 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "blue"
+        color: "white"
     };
 }
 
@@ -440,7 +468,7 @@ function hitPaddleOne(iBall)
 {
     // Checks if the ball hit the paddle
     if(iBall.y + iBall.radius >= m_iPaddleOne.topY && iBall.y - iBall.radius <= m_iPaddleOne.bottomY)
-       if(iBall.x - iBall.radius <= m_iPaddleOne.rightX)
+       if(iBall.x - iBall.radius <= m_iPaddleOne.rightX && iBall.x - iBall.radius >= m_iPaddleOne.leftX && iBall.xV < 0)
            return true;
      
     return false;
@@ -451,7 +479,7 @@ function hitPaddleTwo(iBall)
 {
     // Checks if the ball hit the paddle
     if(iBall.y + iBall.radius >= m_iPaddleTwo.topY && iBall.y - iBall.radius <= m_iPaddleTwo.bottomY)
-       if(iBall.x + iBall.radius >= m_iPaddleTwo.leftX)
+       if(iBall.x + iBall.radius >= m_iPaddleTwo.leftX && iBall.x + iBall.radius <= m_iPaddleTwo.rightX && iBall.xV > 0)
             return true;
      
     return false;
@@ -460,10 +488,13 @@ function hitPaddleTwo(iBall)
 // Checks if the ball went out of bounds
 function outOfBounds(iBall)
 {
-    if(iBall.x > m_iMap.width || iBall.x < 0)
-        return true;
+    if(iBall.x - iBall.radius > m_iMap.width)
+        return m_iMap.right;
     
-    return false;
+    if(iBall.x + iBall.radius < 0)
+        return m_iMap.left;
+    
+    return m_iMap.none;
 }
 
 // Handles changing ball direction if it paddle, including ball direction modification.
@@ -482,6 +513,8 @@ function ballDirectionChanger(iBall, iPaddle)
 // Moves the paddles
 function movePaddle(iPaddle)
 {
+    var iCompensator = 10;
+    
     if(iPaddle.up || iPaddle.down)
     {
         paintPaddle(iPaddle, m_iMap.backgroundColor);
@@ -517,7 +550,7 @@ function movePaddle(iPaddle)
         }
     }
     
-    else if(!iPaddle.up && !iPaddle.down || iPaddle.topY < m_iMap.toolbarThickness || iPaddle.bottomY > m_iMap.height)
+    else if(!iPaddle.up && !iPaddle.down || iPaddle.topY <= m_iMap.toolbarThickness + iCompensator || iPaddle.bottomY >= m_iMap.height - iCompensator)
         iPaddle.velocity = 0;
     
     paintPaddle(iPaddle, iPaddle.color);

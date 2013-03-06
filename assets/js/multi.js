@@ -22,26 +22,31 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-    setUpBall(m_iBallMain, getRandomColor(1, 255));
+    paintMiddleLine();
+    setUpBall(m_iBallMain, m_iBallMain.color);
     movePaddle(m_iPaddleOne);
     movePaddle(m_iPaddleTwo);
     
     if(hitPaddleOne(m_iBallMain))
-    {    
         ballDirectionChanger(m_iBallMain, m_iPaddleOne);
     
-    }
-    
     if(hitPaddleTwo(m_iBallMain))
-    {
         ballDirectionChanger(m_iBallMain, m_iPaddleTwo);
-        
-    }
     
-    if(outOfBounds(m_iBallMain))
+    if(outOfBounds(m_iBallMain) == m_iMap.left || outOfBounds(m_iBallMain) == m_iMap.right)
+    {
+        if(outOfBounds(m_iBallMain) == m_iMap.left)
+            m_iScores.two++;
+        
+        else if(outOfBounds(m_iBallMain) == m_iMap.right)
+            m_iScores.one++;
+            
         initializeBall();
+    }
     
     paintToolbar(m_iMap.toolbarColor);
+    writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
+    writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
 }
 
 // Stops loop
