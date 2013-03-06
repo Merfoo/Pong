@@ -12,35 +12,26 @@ function initializeMulti()
     initializePaddles();
     
     // Initialize gameloop.
-    if (m_IntervalId.paddle != null)
-        clearInterval(m_IntervalId.paddle);
-    
-    if(m_IntervalId.ball != null)
-        clearInterval(m_IntervalId.ball);
+    if (m_IntervalId.game != null)
+        clearInterval(m_IntervalId.game);
 
-    m_IntervalId.paddle = window.setInterval("paddleLoopMulti();", m_iSpeed.paddle);
-    m_IntervalId.ball = window.setInterval("ballLoopMulti();", m_iSpeed.ball);
+    m_IntervalId.game = window.setInterval("gameLoopMulti();", m_iSpeed.game);
 }
 
 // Runs all the functions required for the game to work.
-function ballLoopMulti() 
+function gameLoopMulti() 
 {
+    playBackgroundMusic();
     paintMiddleLine();
     setUpBall(m_iBallMain, m_iBallMain.color);
+    movePaddle(m_iPaddleOne);
+    movePaddle(m_iPaddleTwo);
     
     if(hitPaddleOne(m_iBallMain))
-    {    
         ballDirectionChanger(m_iBallMain, m_iPaddleOne);
-        m_iSpeed.ball -= 3;//increaseSpeed(m_iSpeed.game);
-        m_IntervalId.ball = changeGameSpeed(m_IntervalId.ball, "ballLoopMulti();", m_iSpeed.ball);
-    }
     
     if(hitPaddleTwo(m_iBallMain))
-    {    
         ballDirectionChanger(m_iBallMain, m_iPaddleTwo);
-        m_iSpeed.ball--;//increaseSpeed(m_iSpeed.game);
-        m_IntervalId.ball = changeGameSpeed(m_IntervalId.ball, "ballLoopMulti();", m_iSpeed.ball);
-    }
     
     if(outOfBounds(m_iBallMain) == m_iMap.left || outOfBounds(m_iBallMain) == m_iMap.right)
     {
@@ -53,20 +44,9 @@ function ballLoopMulti()
         initializeBall();
     }
     
-    paintPaddle(m_iPaddleOne, m_iPaddleOne.color);
-    paintPaddle(m_iPaddleTwo, m_iPaddleTwo.color);
-    
     paintToolbar(m_iMap.toolbarColor);
-    writeMessage(m_iMessageAlignment.middle, "Game Speed: " + m_iSpeed.ball, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
     writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
-}
-
-function paddleLoopMulti()
-{
-    playBackgroundMusic();
-    movePaddle(m_iPaddleOne);
-    movePaddle(m_iPaddleTwo);
 }
 
 // Stops loop
@@ -74,8 +54,7 @@ function pauseGameMulti()
 {
     stopBackgroundMusic();
     showPausePic(true);
-    window.clearInterval(m_IntervalId.paddle);
-    window.clearInterval(m_IntervalId.ball);
+    window.clearInterval(m_IntervalId.game);
     m_bGameStatus.isPaused = true;
 }
 
@@ -84,8 +63,7 @@ function unPauseGameMulti()
 {
     playBackgroundMusic();
     showPausePic(false);
-    m_IntervalId.paddle = window.setInterval("paddleLoopMulti();", m_iSpeed.paddle);
-    m_IntervalId.ball = window.setInterval("ballLoopMulti();", m_iSpeed.ball);
+    m_IntervalId.game = window.setInterval("gameLoopMulti();", m_iSpeed.game);
     m_bGameStatus.isPaused = false;
 }
 
