@@ -17,7 +17,7 @@ var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
 var m_iBallMain;
 
 // Contains speed variables like menu, game
-var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
+var m_iSpeed = { menu: 60, paddleOriginal: 33, paddle: 33 , ballOriginal: 10, ball: 10};
 
 // Contains scores like current, highest
 var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0, color: "white"};
@@ -32,7 +32,7 @@ var m_Music;
 var m_CanvasContext;
 
 // Interval ID's
-var m_IntervalId = { menu: null, game: null};
+var m_IntervalId = { menu: null, paddle: null, ball: null};
 
 // Game status, like if it has started, which is current
 var m_bGameStatus = { started: false, paused: false, multi: false};
@@ -76,7 +76,7 @@ function startGame(iGameVersion)
 }
 
 // Changes gamespeed
-function changeGameSpeed(intervalID, sFunction,gameSpeed)
+function changeGameSpeed(intervalID, sFunction, gameSpeed)
 {
     window.clearInterval(intervalID);
     intervalID = window.setInterval(sFunction, gameSpeed);
@@ -180,6 +180,7 @@ function showStartMenu(bVisible)
         showPausePic(false);
         resetGameStatus();
         resetScores();
+        resetGameSpeed();
         document.getElementById("startMenu").style.zIndex = 1;        
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
@@ -287,6 +288,12 @@ function resetScores()
     m_iScores.highestTwo = 0;
 }
 
+function resetGameSpeed()
+{
+    m_iSpeed.paddle = m_iSpeed.paddleOriginal;
+    m_iSpeed.ball = m_iSpeed.ballOriginal;
+}
+
 // Plays background music if mute is off
 function playBackgroundMusic()
 {
@@ -342,7 +349,7 @@ function setUpBall(iBall, ballColor)
 // Handles increasing the speed variable
 function increaseSpeed(iGameSpeed)
 {
-    return (1.0 / ((1.0 / iGameSpeed) + 0.002));
+    return (1.0 / ((1.0 / iGameSpeed) + 0.0002));
 }
 
 // Handles the changing direction of the snake.
@@ -430,6 +437,7 @@ function initializePaddles()
 {
     var iPaddleV = 3;
     var iPaddleMaxV = 24;
+    var iPaddleIncreaseRate = Math.floor(m_iMap.height / 50); 
     var iPaddleThickness = Math.floor(m_iMap.width / 75);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;
@@ -441,7 +449,7 @@ function initializePaddles()
         topY: Math.floor(m_iMap.height / 2) - Math.floor(iPaddleLenght / 2),
         bottomY: Math.floor(m_iMap.height / 2) + Math.floor(iPaddleLenght / 2),
         velocity: iPaddleV,
-        increaseRate: iPaddleV,
+        increaseRate: iPaddleIncreaseRate,
         maxV: iPaddleMaxV,
         up: false,
         down: false,
@@ -455,7 +463,7 @@ function initializePaddles()
         topY: Math.floor(m_iMap.height / 2) - Math.floor(iPaddleLenght / 2),
         bottomY: Math.floor(m_iMap.height / 2) + Math.floor(iPaddleLenght / 2),
         velocity: iPaddleV,
-        increaseRate: iPaddleV,
+        increaseRate: iPaddleIncreaseRate,
         maxV: iPaddleMaxV,
         up: false,
         down: false,
@@ -527,10 +535,10 @@ function movePaddle(iPaddle)
             if((iPaddle.velocity -= iPaddle.increaseRate) <= -iPaddle.maxV)
                 iPaddle.velocity = -iPaddle.maxV;
             
-            if(iPaddle.topY + iPaddle.velocity > m_iMap.toolbarThickness)
+            if(iPaddle.topY - iPaddle.increaseRate > m_iMap.toolbarThickness)
             {
-                iPaddle.topY += iPaddle.velocity;
-                iPaddle.bottomY += iPaddle.velocity;
+                iPaddle.topY -= iPaddle.increaseRate;
+                iPaddle.bottomY -= iPaddle.increaseRate;
             }
         }
         
@@ -542,10 +550,10 @@ function movePaddle(iPaddle)
             if((iPaddle.velocity += iPaddle.increaseRate) >= iPaddle.maxV)
                 iPaddle.velocity = iPaddle.maxV;
             
-            if(iPaddle.bottomY + iPaddle.velocity < m_iMap.height)
+            if(iPaddle.bottomY + iPaddle.increaseRate < m_iMap.height)
             {
-                iPaddle.topY += iPaddle.velocity;
-                iPaddle.bottomY += iPaddle.velocity;
+                iPaddle.topY += iPaddle.increaseRate;
+                iPaddle.bottomY += iPaddle.increaseRate;
             }
         }
     }
