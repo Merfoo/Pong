@@ -13,6 +13,9 @@ var m_iPaddleTwo;
 // Paddle Directions
 var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
 
+// Flash limit, in miliseconds
+var m_iFlash = { flashMode: false, colorReseted: true, current: 0, limit: 2500 };
+
 // Ball
 var m_iBalls = new Array();
 var m_iBallMax = 10;
@@ -328,7 +331,7 @@ function playBallMusic()
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintBall(iBall, m_iMap.backgroundColor);
+    paintBall(iBall, iBall.beforeColor);
     
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
@@ -421,7 +424,6 @@ function setUpLetters()
 
 function initializeBall()
 {
-    m_iBalls = null;
     m_iBalls = new Array();
     m_iBalls.push(makeNewBall());
 }
@@ -451,7 +453,8 @@ function makeNewBall()
         xV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         yV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         maxVelocity: iBallMaxVelocity,
-        color: "white"
+        color: "white",
+        beforeColor: m_iMap.backgroundColor
     };
     
     return iBall;
@@ -477,7 +480,8 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "white"
+        color: "white",
+        originalColor: "white"
     };
     
     m_iPaddleTwo = 
@@ -491,7 +495,8 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "white"
+        color: "white",
+        originalColor: "white"
     };
 }
 
@@ -586,4 +591,20 @@ function movePaddle(iPaddle)
         iPaddle.velocity = 0;
     
     paintPaddle(iPaddle, iPaddle.color);
+}
+
+function setBackgroundFlashing(iBallArray, iPaddleOne, iPaddleTwo, iMiddleLine)
+{
+    var cNewBackground = getRandomColor(1, 255); 
+    paintTile(0, 0, m_iMap.width, m_iMap.height, cNewBackground);
+    
+    for(var index = 0; index < iBallArray.length; index++)
+    {
+        iBallArray[index].color = m_iMap.backgroundColor;
+        iBallArray[index].beforeColor = cNewBackground;
+    }
+    
+    iMiddleLine.color = m_iMap.backgroundColor;
+    iPaddleOne.color = m_iMap.backgroundColor;
+    iPaddleTwo.color = m_iMap.backgroundColor;
 }

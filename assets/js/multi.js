@@ -22,17 +22,51 @@ function initializeMulti()
 function gameLoopMulti() 
 {
     playBackgroundMusic();
-    paintMiddleLine();
     
-    var iAmountOfBalls = m_iBalls.length;
+    if(m_iFlash.flashMode)
+    {
+        m_iFlash.colorReseted = false;
+        m_iFlash.current += m_iSpeed.game;
+        
+        if(m_iFlash.current <= m_iFlash.limit)
+            setBackgroundFlashing(m_iBalls, m_iPaddleOne, m_iPaddleTwo, m_iMiddleLine);
+        
+        else
+        {
+            m_iFlash.flashMode = false;
+            m_iFlash.current = 0;
+            repaintGame();
+        }
+    }
     
-    for(var index = 0;  index < iAmountOfBalls; index++)
+    else if(!m_iFlash.flashMode)
+    {
+        if(!m_iFlash.colorReseted)
+        {
+            paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
+            m_iFlash.colorReseted = true;
+        }
+    
+        for(var index = 0; index < m_iBalls.length; index++)
+        {    
+            m_iBalls[index].color = getRandomColor(1, 255);
+            m_iBalls[index].beforeColor = m_iMap.backgroundColor;
+        }
+
+        m_iPaddleOne.color = getRandomColor(1, 255);
+        m_iPaddleTwo.color = getRandomColor(1, 255);
+        m_iMiddleLine.color = getRandomColor(1, 255);
+    }
+    
+    for(var index = 0;  index < m_iBalls.length; index++)
     {
         setUpBall(m_iBalls[index], m_iBalls[index].color);
 
         if(hitPaddleOne(m_iBalls[index]))
         {    
             ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
+            
+            m_iFlash.flashMode = true;
             
             if(m_iBalls.length < m_iBallMax)
                 m_iBalls.push(makeNewBall());
@@ -41,6 +75,8 @@ function gameLoopMulti()
         if(hitPaddleTwo(m_iBalls[index]))
         {    
             ballDirectionChanger(m_iBalls[index], m_iPaddleTwo);
+            
+            m_iFlash.flashMode = true;
             
             if(m_iBalls.length < m_iBallMax)
                 m_iBalls.push(makeNewBall());
@@ -54,7 +90,6 @@ function gameLoopMulti()
             else if(outOfBounds(m_iBalls[index]) == m_iMap.right)
                 m_iScores.one++;
 
-            paintBall(m_iBalls[index], m_iMap.backgroundColor);
             m_iBalls = removeIndex(index, m_iBalls);
         }
         
@@ -64,7 +99,9 @@ function gameLoopMulti()
     
     movePaddle(m_iPaddleOne);
     movePaddle(m_iPaddleTwo);
+    paintMiddleLine();
     paintToolbar(m_iMap.toolbarColor);
+    writeMessage(m_iMessageAlignment.middle, "" + m_iBalls[0].color, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
     writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
 }
