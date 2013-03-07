@@ -14,7 +14,8 @@ var m_iPaddleTwo;
 var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
 
 // Ball
-var m_iBallMain;
+var m_iBalls = new Array();
+var m_iBallMax = 10;
 
 // Contains speed variables like menu, game
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
@@ -402,18 +403,47 @@ function getRandomNumber(iMin, iMax)
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
 }
 
+// Removes specified index of the array
+function removeIndex(index, array)
+{
+    var returnArray = new Array();
+    
+    for(var iPos = 0; iPos < array.length; iPos++)
+         if(iPos != index)
+            returnArray.push(array[iPos]);
+    
+    return returnArray;
+}
+
 function setUpLetters()
 {
 } 
 
 function initializeBall()
 {
+    m_iBalls = null;
+    m_iBalls = new Array();
+    m_iBalls.push(makeNewBall());
+}
+
+function makeNewBall()
+{
+    var iBall;
+    var iBallXV = getRandomNumber(0, 10);
+    var iBallYV = getRandomNumber(0, 10);
     var iBallMaxVelocity = 20;
     var iBallRadius = Math.floor(((m_iMap.width / 60) + (m_iMap.height / 30)) / 4);
     var iBallStartX = Math.floor(m_iMap.width / 2);
     var iBallStartY = Math.floor(m_iMap.height / 2);
     
-    m_iBallMain = 
+//    var iBallDirection = 
+//    {
+//        xV: 0,
+//        yV: 0
+//    };
+//    
+//    if(iBallXV >= 0)
+    iBall = 
     {
         x: iBallStartX,
         y: iBallStartY,
@@ -423,6 +453,8 @@ function initializeBall()
         maxVelocity: iBallMaxVelocity,
         color: "white"
     };
+    
+    return iBall;
 }
 
 // Initializes the paddles

@@ -23,27 +23,47 @@ function gameLoopMulti()
 {
     playBackgroundMusic();
     paintMiddleLine();
-    setUpBall(m_iBallMain, m_iBallMain.color);
-    movePaddle(m_iPaddleOne);
-    movePaddle(m_iPaddleTwo);
     
-    if(hitPaddleOne(m_iBallMain))
-        ballDirectionChanger(m_iBallMain, m_iPaddleOne);
+    var iAmountOfBalls = m_iBalls.length;
     
-    if(hitPaddleTwo(m_iBallMain))
-        ballDirectionChanger(m_iBallMain, m_iPaddleTwo);
-    
-    if(outOfBounds(m_iBallMain) == m_iMap.left || outOfBounds(m_iBallMain) == m_iMap.right)
+    for(var index = 0;  index < iAmountOfBalls; index++)
     {
-        if(outOfBounds(m_iBallMain) == m_iMap.left)
-            m_iScores.two++;
-        
-        else if(outOfBounds(m_iBallMain) == m_iMap.right)
-            m_iScores.one++;
+        setUpBall(m_iBalls[index], m_iBalls[index].color);
+
+        if(hitPaddleOne(m_iBalls[index]))
+        {    
+            ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
             
-        initializeBall();
+            if(m_iBalls.length < m_iBallMax)
+                m_iBalls.push(makeNewBall());
+        }
+
+        if(hitPaddleTwo(m_iBalls[index]))
+        {    
+            ballDirectionChanger(m_iBalls[index], m_iPaddleTwo);
+            
+            if(m_iBalls.length < m_iBallMax)
+                m_iBalls.push(makeNewBall());
+        }
+
+        if(outOfBounds(m_iBalls[index]) == m_iMap.left || outOfBounds(m_iBalls[index]) == m_iMap.right)
+        {
+            if(outOfBounds(m_iBalls[index]) == m_iMap.left)
+                m_iScores.two++;
+
+            else if(outOfBounds(m_iBalls[index]) == m_iMap.right)
+                m_iScores.one++;
+
+            paintBall(m_iBalls[index], m_iMap.backgroundColor);
+            m_iBalls = removeIndex(index, m_iBalls);
+        }
+        
+        if(m_iBalls.length < 1)
+            initializeBall();
     }
     
+    movePaddle(m_iPaddleOne);
+    movePaddle(m_iPaddleTwo);
     paintToolbar(m_iMap.toolbarColor);
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
     writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
