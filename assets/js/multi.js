@@ -35,7 +35,6 @@ function gameLoopMulti()
         {
             m_iFlash.flashMode = false;
             m_iFlash.current = 0;
-            repaintGame();
         }
     }
     
@@ -65,6 +64,7 @@ function gameLoopMulti()
         if(hitPaddleOne(m_iBalls[index]))
         {    
             ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
+            playBallMusic();
             
             m_iFlash.flashMode = true;
             
@@ -75,6 +75,7 @@ function gameLoopMulti()
         if(hitPaddleTwo(m_iBalls[index]))
         {    
             ballDirectionChanger(m_iBalls[index], m_iPaddleTwo);
+            playBallMusic();
             
             m_iFlash.flashMode = true;
             

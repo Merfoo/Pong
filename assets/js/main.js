@@ -157,12 +157,12 @@ function setUpMusic()
             
     // Sets up music
     if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, '')))
-        ballMusic = new Audio(sDirectory + "Food.mp3");
+        ballMusic = new Audio(sDirectory + "Ball.mp3");
 
     else
     {
         musicList = new Array(sDirectory + "Ephixia - Zelda Remix.ogg", sDirectory + "Song One.ogg", sDirectory + "Song Two.ogg", sDirectory + "Song Three.ogg");
-        ballMusic = new Audio(sDirectory + "Food.ogg"); 
+        ballMusic = new Audio(sDirectory + "Ball.ogg"); 
     }
 	
     m_Music = 
@@ -221,11 +221,12 @@ function paintTile(startX, startY, width, height, color)
 function paintBall(iBall, color)
 {
     m_CanvasContext.beginPath();
+    m_CanvasContext.lineWidth = 10
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
+    m_CanvasContext.fill();
     m_CanvasContext.stroke();
     m_CanvasContext.closePath();
-    m_CanvasContext.fill();
 }
 
 function paintStartMenu()
@@ -325,7 +326,11 @@ function stopBackgroundMusic()
 function playBallMusic()
 {
     if(m_Music.soundOn)
-        m_Music.ball.play();
+    {
+//        var src = m_Music.ball.src;
+//        m_Music.ball = new Audio(src);
+//        m_Music.ball.play();
+    }
 }
 
 // Handles the ball hitting the wall boundaries.
