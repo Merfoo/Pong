@@ -13,8 +13,12 @@ var m_iPaddleTwo;
 // Paddle Directions
 var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
 
+// Flash limit, in miliseconds
+var m_iFlash = { flashMode: false, colorReseted: true, current: 0, limit: 2500 };
+
 // Ball
-var m_iBallMain;
+var m_iBalls = new Array();
+var m_iBallMax = 10;
 
 // Contains speed variables like menu, game
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
@@ -153,12 +157,12 @@ function setUpMusic()
             
     // Sets up music
     if (!!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, '')))
-        ballMusic = new Audio(sDirectory + "Food.mp3");
+        ballMusic = new Audio(sDirectory + "Ball.mp3");
 
     else
     {
         musicList = new Array(sDirectory + "Ephixia - Zelda Remix.ogg", sDirectory + "Song One.ogg", sDirectory + "Song Two.ogg", sDirectory + "Song Three.ogg");
-        ballMusic = new Audio(sDirectory + "Food.ogg"); 
+        ballMusic = new Audio(sDirectory + "Ball.ogg"); 
     }
 	
     m_Music = 
@@ -217,11 +221,12 @@ function paintTile(startX, startY, width, height, color)
 function paintBall(iBall, color)
 {
     m_CanvasContext.beginPath();
+    m_CanvasContext.lineWidth = 10
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
+    m_CanvasContext.fill();
     m_CanvasContext.stroke();
     m_CanvasContext.closePath();
-    m_CanvasContext.fill();
 }
 
 function paintStartMenu()
@@ -321,13 +326,17 @@ function stopBackgroundMusic()
 function playBallMusic()
 {
     if(m_Music.soundOn)
-        m_Music.ball.play();
+    {
+//        var src = m_Music.ball.src;
+//        m_Music.ball = new Audio(src);
+//        m_Music.ball.play();
+    }
 }
 
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintBall(iBall, m_iMap.backgroundColor);
+    paintBall(iBall, iBall.beforeColor);
     
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
@@ -402,18 +411,46 @@ function getRandomNumber(iMin, iMax)
     return Math.floor((Math.random() * (iMax - iMin)) + iMin);
 }
 
+// Removes specified index of the array
+function removeIndex(index, array)
+{
+    var returnArray = new Array();
+    
+    for(var iPos = 0; iPos < array.length; iPos++)
+         if(iPos != index)
+            returnArray.push(array[iPos]);
+    
+    return returnArray;
+}
+
 function setUpLetters()
 {
 } 
 
 function initializeBall()
 {
+    m_iBalls = new Array();
+    m_iBalls.push(makeNewBall());
+}
+
+function makeNewBall()
+{
+    var iBall;
+    var iBallXV = getRandomNumber(0, 10);
+    var iBallYV = getRandomNumber(0, 10);
     var iBallMaxVelocity = 20;
     var iBallRadius = Math.floor(((m_iMap.width / 60) + (m_iMap.height / 30)) / 4);
     var iBallStartX = Math.floor(m_iMap.width / 2);
     var iBallStartY = Math.floor(m_iMap.height / 2);
     
-    m_iBallMain = 
+//    var iBallDirection = 
+//    {
+//        xV: 0,
+//        yV: 0
+//    };
+//    
+//    if(iBallXV >= 0)
+    iBall = 
     {
         x: iBallStartX,
         y: iBallStartY,
@@ -421,8 +458,11 @@ function initializeBall()
         xV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         yV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
         maxVelocity: iBallMaxVelocity,
-        color: "white"
+        color: "white",
+        beforeColor: m_iMap.backgroundColor
     };
+    
+    return iBall;
 }
 
 // Initializes the paddles
@@ -445,7 +485,8 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "white"
+        color: "white",
+        originalColor: "white"
     };
     
     m_iPaddleTwo = 
@@ -459,7 +500,8 @@ function initializePaddles()
         maxV: iPaddleMaxV,
         up: false,
         down: false,
-        color: "white"
+        color: "white",
+        originalColor: "white"
     };
 }
 
@@ -554,4 +596,20 @@ function movePaddle(iPaddle)
         iPaddle.velocity = 0;
     
     paintPaddle(iPaddle, iPaddle.color);
+}
+
+function setBackgroundFlashing(iBallArray, iPaddleOne, iPaddleTwo, iMiddleLine)
+{
+    var cNewBackground = getRandomColor(1, 255); 
+    paintTile(0, 0, m_iMap.width, m_iMap.height, cNewBackground);
+    
+    for(var index = 0; index < iBallArray.length; index++)
+    {
+        iBallArray[index].color = m_iMap.backgroundColor;
+        iBallArray[index].beforeColor = cNewBackground;
+    }
+    
+    iMiddleLine.color = m_iMap.backgroundColor;
+    iPaddleOne.color = m_iMap.backgroundColor;
+    iPaddleTwo.color = m_iMap.backgroundColor;
 }
