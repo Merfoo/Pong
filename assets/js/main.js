@@ -39,7 +39,7 @@ var m_CanvasContext;
 var m_IntervalId = { menu: null, game: null};
 
 // Game status, like if it has started, which is current
-var m_bGameStatus = { started: false, paused: false, multi: false};
+var m_bGameStatus = { started: false, paused: false, single: false, multi: false};
 
 // Keys
 var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32};
@@ -75,7 +75,10 @@ function initializeGame()
 // Starts game
 function startGame(iGameVersion)
 {
-    if (iGameVersion == 1)
+    if(iGameVersion == 0)
+        initializeSingle();
+    
+    else if (iGameVersion == 1)
         initializeMulti();
 }
 
@@ -184,6 +187,7 @@ function showStartMenu(bVisible)
         showPausePic(false);
         resetGameStatus();
         resetScores();
+        m_iFlash.flashMode = false;
         document.getElementById("startMenu").style.zIndex = 1;        
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
@@ -221,7 +225,7 @@ function paintTile(startX, startY, width, height, color)
 function paintBall(iBall, color)
 {
     m_CanvasContext.beginPath();
-    m_CanvasContext.lineWidth = 10
+    m_CanvasContext.lineWidth = 10;
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
     m_CanvasContext.fill();
@@ -281,6 +285,7 @@ function resetGameStatus()
 {
     m_bGameStatus.started = false;
     m_bGameStatus.isPaused = false;
+    m_bGameStatus.single = false;
     m_bGameStatus.multi = false;
 }
 
@@ -288,8 +293,6 @@ function resetScores()
 {
     m_iScores.one = 0;
     m_iScores.two = 0;
-    m_iScores.highestOne = 0;
-    m_iScores.highestTwo = 0;
 }
 
 // Plays background music if mute is off
@@ -327,9 +330,9 @@ function playBallMusic()
 {
     if(m_Music.soundOn)
     {
-//        var src = m_Music.ball.src;
-//        m_Music.ball = new Audio(src);
-//        m_Music.ball.play();
+        var src = m_Music.ball.src;
+        m_Music.ball = new Audio(src);
+        m_Music.ball.play();
     }
 }
 
@@ -359,7 +362,10 @@ function doKeyDown(event) {
 
     if (m_bGameStatus.started && !m_bGameStatus.isPaused)
     {
-        if (m_bGameStatus.multi)
+        if(m_bGameStatus.single)
+            keyBoardDownSingle(event);
+        
+        else if (m_bGameStatus.multi)
             keyBoardDownMulti(event);
     }
 }
@@ -369,7 +375,10 @@ function doKeyUp(event)
 {
     if (m_bGameStatus.started)
     {
-        if (m_bGameStatus.multi)
+        if(m_bGameStatus.single)
+            keyBoardUpSingle(event);
+        
+        else if (m_bGameStatus.multi)
             keyBoardUpMulti(event);
 
         if (event.keyCode == 77)    // 'm' was pressed.
@@ -598,18 +607,52 @@ function movePaddle(iPaddle)
     paintPaddle(iPaddle, iPaddle.color);
 }
 
-function setBackgroundFlashing(iBallArray, iPaddleOne, iPaddleTwo, iMiddleLine)
+function runBackgroundFlashing()
 {
-    var cNewBackground = getRandomColor(1, 255); 
-    paintTile(0, 0, m_iMap.width, m_iMap.height, cNewBackground);
-    
-    for(var index = 0; index < iBallArray.length; index++)
+    if(m_iFlash.flashMode)
     {
-        iBallArray[index].color = m_iMap.backgroundColor;
-        iBallArray[index].beforeColor = cNewBackground;
+        m_iFlash.colorReseted = false;
+        m_iFlash.current += m_iSpeed.game;
+
+        if(m_iFlash.current <= m_iFlash.limit)
+        {
+            var cNewBackground = getRandomColor(1, 255); 
+            paintTile(0, 0, m_iMap.width, m_iMap.height, cNewBackground);
+
+            for(var index = 0; index < m_iBalls.length; index++)
+            {
+                m_iBalls[index].color = m_iMap.backgroundColor;
+                m_iBalls[index].beforeColor = cNewBackground;
+            }
+
+            m_iMiddleLine.color = m_iMap.backgroundColor;
+            m_iPaddleOne.color = m_iMap.backgroundColor;
+            m_iPaddleTwo.color = m_iMap.backgroundColor;
+        }
+
+        else
+        {
+            m_iFlash.flashMode = false;
+            m_iFlash.current = 0;
+        }
     }
-    
-    iMiddleLine.color = m_iMap.backgroundColor;
-    iPaddleOne.color = m_iMap.backgroundColor;
-    iPaddleTwo.color = m_iMap.backgroundColor;
+
+    else if(!m_iFlash.flashMode)
+    {
+        if(!m_iFlash.colorReseted)
+        {
+            paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
+            m_iFlash.colorReseted = true;
+        }
+
+        for(var index = 0; index < m_iBalls.length; index++)
+        {    
+            m_iBalls[index].color = getRandomColor(1, 255);
+            m_iBalls[index].beforeColor = m_iMap.backgroundColor;
+        }
+
+        m_iPaddleOne.color = getRandomColor(1, 255);
+        m_iPaddleTwo.color = getRandomColor(1, 255);
+        m_iMiddleLine.color = getRandomColor(1, 255);
+    }
 }

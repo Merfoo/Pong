@@ -1,10 +1,10 @@
-// Muliplayer 
+// Singleplayer
 
-function initializeMulti()
+function initializeSingle()
 {
     showStartMenu(false);
     m_bGameStatus.started = true;
-    m_bGameStatus.multi = true;
+    m_bGameStatus.single = true;
     m_iScores.highestOne = 0;
     m_iScores.highestTwo = 0;
     
@@ -15,11 +15,11 @@ function initializeMulti()
     if (m_IntervalId.game != null)
         clearInterval(m_IntervalId.game);
 
-    m_IntervalId.game = window.setInterval("gameLoopMulti();", m_iSpeed.game);
+    m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
 }
 
 // Runs all the functions required for the game to work.
-function gameLoopMulti() 
+function gameLoopSingle() 
 {
     playBackgroundMusic();
     runBackgroundFlashing();
@@ -32,7 +32,7 @@ function gameLoopMulti()
         {    
             ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
             playBallMusic();
-            
+            m_iScores.one++;
             m_iFlash.flashMode = true;
             
             if(m_iBalls.length < m_iBallMax)
@@ -51,14 +51,9 @@ function gameLoopMulti()
         }
 
         if(outOfBounds(m_iBalls[index]) == m_iMap.left || outOfBounds(m_iBalls[index]) == m_iMap.right)
-        {
-            if(outOfBounds(m_iBalls[index]) == m_iMap.left)
-                m_iScores.two++;
-
-            else if(outOfBounds(m_iBalls[index]) == m_iMap.right)
-                m_iScores.one++;
-
+        {    
             m_iBalls = removeIndex(index, m_iBalls);
+            m_iScores.one--;
         }
         
         if(m_iBalls.length < 1)
@@ -71,11 +66,10 @@ function gameLoopMulti()
     paintToolbar(m_iMap.toolbarColor);
     writeMessage(m_iMessageAlignment.middle, "" + m_iBalls[0].color, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
-    writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
 }
 
 // Stops loop
-function pauseGameMulti()
+function pauseGameSingle()
 {
     stopBackgroundMusic();
     showPausePic(true);
@@ -84,54 +78,52 @@ function pauseGameMulti()
 }
 
 // Starts loop again
-function unPauseGameMulti()
+function unPauseGameSingle()
 {
     playBackgroundMusic();
     showPausePic(false);
-    m_IntervalId.game = window.setInterval("gameLoopMulti();", m_iSpeed.game);
+    m_IntervalId.game = window.setInterval("gameLoopSingle();", m_iSpeed.game);
     m_bGameStatus.isPaused = false;
 }
 
 // Handle keyboard events for multiplayer
-function keyBoardDownMulti(event)
+function keyBoardDownSingle(event)
 {
     // Paddle One
-    if (event.keyCode == m_iKeyId.w)   // W was pressed.
-        m_iPaddleOne.up = true;
-
-    else if (event.keyCode == m_iKeyId.s)    // S was pressed.
-        m_iPaddleOne.down = true;
-
-    // Paddle Two
     if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+    {
+        m_iPaddleOne.up = true;
         m_iPaddleTwo.up = true;
+    }
 
     else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+    {
+        m_iPaddleOne.down = true;
         m_iPaddleTwo.down = true;
+    }
 }
 
-function keyBoardUpMulti(event)
+function keyBoardUpSingle(event)
 {
     // Paddle One
-    if (event.keyCode == m_iKeyId.w)   // W was pressed.
-        m_iPaddleOne.up = false;
-
-    else if (event.keyCode == m_iKeyId.s)    // S was pressed.
-        m_iPaddleOne.down = false;
-
-    // Paddle Two
     if (event.keyCode == m_iKeyId.arrowUp)   // Up arrow key was pressed.
+    {
+        m_iPaddleOne.up = false;
         m_iPaddleTwo.up = false;
+    }
 
     else if (event.keyCode == m_iKeyId.arrowDown)    // Down arrow key was pressed.
+    {
+        m_iPaddleOne.down = false;
         m_iPaddleTwo.down = false;
+    }
 
     if (event.keyCode == m_iKeyId.space)
-        m_bGameStatus.isPaused ? unPauseGameMulti() : pauseGameMulti();
+        m_bGameStatus.isPaused ? unPauseGameSingle() : pauseGameSingle();
 
     if (event.keyCode == m_iKeyId.esc) // Escape was pressed
     {
-        pauseGameMulti();
+        pauseGameSingle();
         showStartMenu(true);
     }
 }

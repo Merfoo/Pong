@@ -6,15 +6,15 @@
     <title>Robotic's Pong Game!</title>
     <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
     <script type="text/javascript" src="assets/js/main.js"></script>
+    <script type="text/javascript" src="assets/js/single.js"></script>
     <script type="text/javascript" src="assets/js/multi.js"></script>
 </head>
 <body>
     <canvas id="myCanvas" width="1000" height="500"></canvas>
     <img id="pause" src="assets/pics/pause.png"/>
-    <img id="soundOn" src="assets/pics/ON.png" onclick="setSoundPicVisible(false);"/>
-    <img id="soundOff" src="assets/pics/OFF.png" onclick="setSoundPicVisible(true);"/>
     <div id="startMenu">
         <img id="title" src="assets/pics/title.png" />
+        <img id="singlePlayer" src ="assets/pics/1player.png" onclick="startGame(0);" />
         <img id="multiPlayer" src ="assets/pics/2player.png" onclick="startGame(1);" />
     </div>
 </body>
