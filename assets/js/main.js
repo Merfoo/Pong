@@ -224,11 +224,12 @@ function paintTile(startX, startY, width, height, color)
 }
 
 // Paints a circle using pixels
-function paintBall(iBall, color, borderThickness)
+function paintBall(iBall, color, borderColor, borderThickness)
 {
     m_CanvasContext.beginPath();
     m_CanvasContext.lineWidth = borderThickness;
     m_CanvasContext.fillStyle = color;
+    m_CanvasContext.strokeStyle = borderColor;
     m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
     m_CanvasContext.fill();
     m_CanvasContext.stroke();
@@ -342,7 +343,7 @@ function playBallMusic()
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintBall(iBall, iBall.beforeColor, 0);
+    paintBall(iBall, iBall.beforeColor, iBall.beforeColor, 0);
     
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
@@ -350,8 +351,8 @@ function setUpBall(iBall, ballColor)
 
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
-
-    paintBall(iBall, ballColor, 3);
+    console.log(iBall.beforeColor);
+    paintBall(iBall, ballColor, m_iMap.backgroundColor, 3);
 }
 
 // Handles increasing the speed variable
@@ -624,7 +625,7 @@ function runBackgroundFlashing()
 
             for(var index = 0; index < m_iBalls.length; index++)
             {
-                m_iBalls[index].color = m_iMap.backgroundColor;
+                m_iBalls[index].color = getRandomColor(1, 255);
                 m_iBalls[index].beforeColor = cNewBackground;
             }
 
