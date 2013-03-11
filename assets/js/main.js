@@ -64,6 +64,8 @@ function initializeGame()
         right: Math.floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
     };
     
+    alert("WARNING: If you have had epileptic seizures in the past, this game may cause one to occur again.\n\
+            Play with Caution!");
     var isChrome = /chrome/.test(navigator.userAgent.toLowerCase());
     
     if(!isChrome)
@@ -222,10 +224,10 @@ function paintTile(startX, startY, width, height, color)
 }
 
 // Paints a circle using pixels
-function paintBall(iBall, color)
+function paintBall(iBall, color, borderThickness)
 {
     m_CanvasContext.beginPath();
-    m_CanvasContext.lineWidth = 10;
+    m_CanvasContext.lineWidth = borderThickness;
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.arc(iBall.x, iBall.y, iBall.radius, 0, 2 * Math.PI);
     m_CanvasContext.fill();
@@ -340,7 +342,7 @@ function playBallMusic()
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintBall(iBall, iBall.beforeColor);
+    paintBall(iBall, iBall.beforeColor, 0);
     
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
@@ -349,7 +351,7 @@ function setUpBall(iBall, ballColor)
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
 
-    paintBall(iBall, ballColor);
+    paintBall(iBall, ballColor, 3);
 }
 
 // Handles increasing the speed variable
