@@ -331,6 +331,7 @@ function playBallMusic()
     if(m_Music.soundOn)
     {
         var src = m_Music.ball.src;
+        m_Music.ball = null;
         m_Music.ball = new Audio(src);
         m_Music.ball.play();
     }
