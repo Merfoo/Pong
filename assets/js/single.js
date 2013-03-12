@@ -5,8 +5,6 @@ function initializeSingle()
     showStartMenu(false);
     m_bGameStatus.started = true;
     m_bGameStatus.single = true;
-    m_iScores.highestOne = 0;
-    m_iScores.highestTwo = 0;
     
     initializeBall();
     initializePaddles();
@@ -28,26 +26,20 @@ function gameLoopSingle()
     {
         setUpBall(m_iBalls[index], m_iBalls[index].color);
 
-        if(hitPaddleOne(m_iBalls[index]))
+        if(hitPaddleOne(m_iBalls[index]) || hitPaddleTwo(m_iBalls[index]))
         {    
-            ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
+            if(hitPaddleOne(m_iBalls[index]))
+                ballDirectionChanger(m_iBalls[index], m_iPaddleOne);
+            
+            if(hitPaddleTwo(m_iBalls[index]))
+                ballDirectionChanger(m_iBalls[index], m_iPaddleTwo);
+            
+            if(m_iBalls.length < m_iBallMax)
+                m_iBalls.push(makeNewBall());
+            
             playBallMusic();
             m_iScores.one++;
             m_iFlash.flashMode = true;
-            
-            if(m_iBalls.length < m_iBallMax)
-                m_iBalls.push(makeNewBall());
-        }
-
-        if(hitPaddleTwo(m_iBalls[index]))
-        {    
-            ballDirectionChanger(m_iBalls[index], m_iPaddleTwo);
-            playBallMusic();
-            
-            m_iFlash.flashMode = true;
-            
-            if(m_iBalls.length < m_iBallMax)
-                m_iBalls.push(makeNewBall());
         }
 
         if(outOfBounds(m_iBalls[index]) == m_iMap.left || outOfBounds(m_iBalls[index]) == m_iMap.right)

@@ -24,7 +24,7 @@ var m_iBallMax = 10;
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
 
 // Contains scores like current, highest
-var m_iScores = { one: 0, two: 0, highestOne: 0, highestTwo: 0, color: "white"};
+var m_iScores = { one: 0, two: 0, color: "white"};
 
 // Messages alignment for toolbar
 var m_iMessageAlignment;
@@ -351,7 +351,6 @@ function setUpBall(iBall, ballColor)
 
     iBall.x += iBall.xV;
     iBall.y += iBall.yV;
-    console.log(iBall.beforeColor);
     paintBall(iBall, ballColor, m_iMap.backgroundColor, 3);
 }
 
