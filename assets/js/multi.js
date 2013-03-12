@@ -21,6 +21,7 @@ function gameLoopMulti()
 {
     playBackgroundMusic();
     runBackgroundFlashing();
+    paintMiddleLine();
     
     for(var index = 0;  index < m_iBalls.length; index++)
     {
@@ -58,7 +59,6 @@ function gameLoopMulti()
     
     movePaddle(m_iPaddleOne);
     movePaddle(m_iPaddleTwo);
-    paintMiddleLine();
     paintToolbar(m_iMap.toolbarColor);
     writeMessage(m_iMessageAlignment.middle, "" + m_iBalls[0].color, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
