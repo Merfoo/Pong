@@ -41,26 +41,26 @@ function gameLoopMulti()
             playBallMusic();
             m_iFlash.flashMode = true;
         }
-
+        
         if(outOfBounds(m_iBalls[index]) == m_iMap.left || outOfBounds(m_iBalls[index]) == m_iMap.right)
-        {
+        {            
             if(outOfBounds(m_iBalls[index]) == m_iMap.left)
                 m_iScores.two++;
 
             else if(outOfBounds(m_iBalls[index]) == m_iMap.right)
                 m_iScores.one++;
 
-            m_iBalls = removeIndex(index, m_iBalls);
+            m_iBalls = removeIndex(index, m_iBalls); 
+            
+            if(m_iBalls.length < 1)
+                initializeBall();
         }
-        
-        if(m_iBalls.length < 1)
-            initializeBall();
     }
     
     movePaddle(m_iPaddleOne);
     movePaddle(m_iPaddleTwo);
     paintToolbar(m_iMap.toolbarColor);
-    writeMessage(m_iMessageAlignment.middle, "" + m_iBalls[0].color, "white");
+    writeMessage(m_iMessageAlignment.middle, "" + m_iBalls.length, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
     writeMessage(m_iMessageAlignment.right, "Player Two: " + m_iScores.two, m_iScores.color);
 }

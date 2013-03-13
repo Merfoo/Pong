@@ -448,27 +448,18 @@ function initializeBall()
 function makeNewBall()
 {
     var iBall;
-    var iBallXV = getRandomNumber(0, 10);
-    var iBallYV = getRandomNumber(0, 10);
     var iBallMaxVelocity = 20;
     var iBallRadius = Math.floor(((m_iMap.width / 60) + (m_iMap.height / 30)) / 4);
     var iBallStartX = Math.floor(m_iMap.width / 2);
     var iBallStartY = Math.floor(m_iMap.height / 2);
     
-//    var iBallDirection = 
-//    {
-//        xV: 0,
-//        yV: 0
-//    };
-//    
-//    if(iBallXV >= 0)
     iBall = 
     {
         x: iBallStartX,
         y: iBallStartY,
         radius: iBallRadius,
-        xV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
-        yV: getRandomNumber(0, 10) > 5 ? iBallRadius: -iBallRadius,
+        xV: getRandomNumber(1, 10) > 5 ? iBallRadius : -iBallRadius,
+        yV: getRandomNumber(1, 10) > 5 ? getRandomNumber(0, iBallRadius * 2) : -getRandomNumber(0, iBallRadius * 2),
         maxVelocity: iBallMaxVelocity,
         color: "white",
         beforeColor: m_iMap.backgroundColor
@@ -580,12 +571,6 @@ function movePaddle(iPaddle)
             
             if((iPaddle.velocity -= iPaddle.increaseRate) <= -iPaddle.maxV)
                 iPaddle.velocity = -iPaddle.maxV;
-            
-            if(iPaddle.topY + iPaddle.velocity > m_iMap.toolbarThickness)
-            {
-                iPaddle.topY += iPaddle.velocity;
-                iPaddle.bottomY += iPaddle.velocity;
-            }
         }
         
         else if(iPaddle.down)
@@ -595,12 +580,12 @@ function movePaddle(iPaddle)
             
             if((iPaddle.velocity += iPaddle.increaseRate) >= iPaddle.maxV)
                 iPaddle.velocity = iPaddle.maxV;
-            
-            if(iPaddle.bottomY + iPaddle.velocity < m_iMap.height)
-            {
-                iPaddle.topY += iPaddle.velocity;
-                iPaddle.bottomY += iPaddle.velocity;
-            }
+        }
+        
+        if((iPaddle.bottomY + iPaddle.velocity < m_iMap.height) && (iPaddle.topY + iPaddle.velocity > m_iMap.toolbarThickness))
+        {
+            iPaddle.topY += iPaddle.velocity;
+            iPaddle.bottomY += iPaddle.velocity;
         }
     }
     
