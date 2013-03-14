@@ -14,7 +14,7 @@ var m_iPaddleTwo;
 var m_iDirection = { up: 1, right: 2, down: 3, left: 4, none: 0};
 
 // Flash limit, in miliseconds
-var m_iFlash = { flashMode: false, colorReseted: true, current: 0, limit: 2500 };
+var m_iFlash = { flashEnabled: false, flashMode: false, colorReseted: true, current: 0, limit: 2500 };
 
 // Ball
 var m_iBalls = new Array();
@@ -189,6 +189,7 @@ function showStartMenu(bVisible)
         showPausePic(false);
         resetGameStatus();
         resetScores();
+        //setFlashEnabled(false);
         m_iFlash.flashMode = false;
         document.getElementById("startMenu").style.zIndex = 1;        
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
@@ -273,6 +274,11 @@ function setSoundPicVisible(bOn)
         document.getElementById("soundOn").style.zIndex = -1;
         document.getElementById("soundOff").style.zIndex = 1;
     }
+}
+
+function setFlashEnabled(bVisible)
+{
+    m_iFlash.flashEnabled = bVisible;
 }
 
 // Writes message to corresponding tile, with specified colour

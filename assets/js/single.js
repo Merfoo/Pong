@@ -47,10 +47,10 @@ function gameLoopSingle()
         {    
             m_iBalls = removeIndex(index, m_iBalls);
             m_iScores.one--;
+            
+            if(m_iBalls.length < 1)
+                initializeBall();
         }
-        
-        if(m_iBalls.length < 1)
-            initializeBall();
     }
     
     movePaddle(m_iPaddleOne);
