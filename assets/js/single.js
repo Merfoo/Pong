@@ -38,8 +38,10 @@ function gameLoopSingle()
             if(m_iBalls.length < m_iBallMax)
                 m_iBalls.push(makeNewBall());
             
-            playBallMusic();
-            m_iScores.one++;
+            if(++m_iScores.one > m_iScores.highestOne)
+                m_iScores.highestOne = m_iScores.one;
+            
+            playBallMusic();            
             m_iFlash.flashMode = true;
         }
 
@@ -58,6 +60,7 @@ function gameLoopSingle()
     paintToolbar(m_iMap.toolbarColor);
     writeMessage(m_iMessageAlignment.middle, "" + m_iBalls[0].color, "white");
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
+    writeMessage(m_iMessageAlignment.right, "Highest: " + m_iScores.highestOne, m_iScores.color);
 }
 
 // Stops loop

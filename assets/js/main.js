@@ -24,7 +24,7 @@ var m_iBallMax = 10;
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
 
 // Contains scores like current, highest
-var m_iScores = { one: 0, two: 0, color: "white"};
+var m_iScores = { one: 0, highestOne: 0, two: 0, color: "white"};
 
 // Messages alignment for toolbar
 var m_iMessageAlignment;
@@ -301,6 +301,7 @@ function resetGameStatus()
 function resetScores()
 {
     m_iScores.one = 0;
+    m_iScores.highestOne = 0;
     m_iScores.two = 0;
 }
 
