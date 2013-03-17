@@ -18,7 +18,7 @@ var m_iFlash = { flashEnabled: false, flashMode: false, colorReseted: true, curr
 
 // Ball
 var m_iBalls = new Array();
-var m_iBallMax = 10;
+var m_iBallMax = 3;
 
 // Contains speed variables like menu, game
 var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
@@ -42,7 +42,7 @@ var m_IntervalId = { menu: null, game: null};
 var m_bGameStatus = { started: false, paused: false, single: false, multi: false};
 
 // Keys
-var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32, m: 77, f: 70};
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32, m: 77, f: 70, o: 79, l: 76};
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
@@ -407,6 +407,12 @@ function doKeyUp(event)
         
         else if(event.keyCode == m_iKeyId.f)    // 'f' was pressed
             setFlashEnabled(!m_iFlash.flashEnabled);
+        
+        else if(event.keyCode == m_iKeyId.o)    // 'o' was pressed
+            m_iBallMax++;
+            
+        else if(event.keyCode == m_iKeyId.l && --m_iBallMax < 1)    // 'l' was pressed
+            m_iBallMax = 1;
     }
 }
 
