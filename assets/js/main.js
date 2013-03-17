@@ -42,7 +42,7 @@ var m_IntervalId = { menu: null, game: null};
 var m_bGameStatus = { started: false, paused: false, single: false, multi: false};
 
 // Keys
-var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32};
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32, m: 77, f: 70};
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
@@ -189,8 +189,7 @@ function showStartMenu(bVisible)
         showPausePic(false);
         resetGameStatus();
         resetScores();
-        //setFlashEnabled(false);
-        m_iFlash.flashMode = false;
+        setFlashEnabled(false);
         document.getElementById("startMenu").style.zIndex = 1;        
         m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
@@ -276,11 +275,6 @@ function setSoundPicVisible(bOn)
     }
 }
 
-function setFlashEnabled(bVisible)
-{
-    m_iFlash.flashEnabled = bVisible;
-}
-
 // Writes message to corresponding tile, with specified colour
 function writeMessage(startTile, message, color)
 {
@@ -361,6 +355,23 @@ function setUpBall(iBall, ballColor)
     paintBall(iBall, ballColor, m_iMap.backgroundColor, 3);
 }
 
+function setFlashEnabled(bEnabled)
+{
+    if(bEnabled)
+    {
+        document.getElementById("flash").style.zIndex = 3;
+        document.getElementById("regular").style.zIndex = -3;
+    }
+    
+    else
+    {
+        document.getElementById("flash").style.zIndex = -3;
+        document.getElementById("regular").style.zIndex = 3;
+    }
+        
+    m_iFlash.flashEnabled = bEnabled;
+}
+
 // Handles increasing the speed variable
 function increaseSpeed(iGameSpeed)
 {
@@ -391,8 +402,11 @@ function doKeyUp(event)
         else if (m_bGameStatus.multi)
             keyBoardUpMulti(event);
 
-        if (event.keyCode == 77)    // 'm' was pressed.
+        if (event.keyCode == m_iKeyId.m)    // 'm' was pressed.
             m_Music.soundOn = !m_Music.soundOn;
+        
+        else if(event.keyCode == m_iKeyId.f)    // 'f' was pressed
+            setFlashEnabled(!m_iFlash.flashEnabled);
     }
 }
 
@@ -604,7 +618,7 @@ function movePaddle(iPaddle)
 
 function runBackgroundFlashing()
 {
-    if(m_iFlash.flashMode)
+    if(m_iFlash.flashMode && m_iFlash.flashEnabled)
     {
         m_iFlash.colorReseted = false;
         m_iFlash.current += m_iSpeed.game;
@@ -632,7 +646,7 @@ function runBackgroundFlashing()
         }
     }
 
-    else if(!m_iFlash.flashMode)
+    else if(!m_iFlash.flashMode || !m_iFlash.flashEnabled)
     {
         if(!m_iFlash.colorReseted)
         {

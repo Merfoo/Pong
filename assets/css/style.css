@@ -21,45 +21,6 @@ canvas
     left:20%;
 }
 
-#soundOn 
-{
-    z-index: -1; 
-    height: 3%; 
-    width: 2.75%;
-    position:absolute; 
-    top: 1.25%; 
-    left:93%;
-}
-
-#soundOff 
-{
-    z-index: -1; 
-    height: 3%; 
-    width: 2.75%;
-    position:absolute; 
-    top: 1.25%; 
-    left:93%;
-}
-
-#slowMode
-{
-    z-index: -1; 
-    height: 4.25%; 
-    width: 3%;
-    position:absolute; 
-    top: .01%; 
-    left:85%;
-}
-
-#fastMode
-{
-    z-index: -1; 
-    height: 4.25%; 
-    width: 3%;
-    position:absolute; 
-    top: .01%; 
-    left:85%;
-}
 #startMenu 
 {
     z-index: -1;
@@ -97,20 +58,22 @@ canvas
     left: 70%;
 }
 
-#teleportic 
+#flash
 {
-    height: 30%; 
-    width: 15%;
+    z-index: -3;
+    height: 10%; 
+    width: 5%;
     position: absolute; 
-    top: 40%; 
-    left: 10%;
+    top: -2%; 
+    left: 92.5%;
 }
 
-#multiTeleportic 
+#regular
 {
-    height: 30%;
-    width: 15%;
-    position: absolute;
-    top: 35%;
-    left: 78%;
+    z-index: 3;
+    height: 15%; 
+    width: 10%;
+    position: absolute; 
+    top: -4%; 
+    left: 90%;
 }
