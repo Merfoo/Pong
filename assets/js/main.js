@@ -388,10 +388,10 @@ function doKeyDown(event) {
         
         else if (m_bGameStatus.multi)
             keyBoardDownMulti(event);
-        
-        event.preventDefault();
-        return false;
     }
+    
+    event.preventDefault();
+    return false;
 }
 
 // Handles key up events
@@ -416,10 +416,10 @@ function doKeyUp(event)
             
         else if(event.keyCode == m_iKeyId.l && --m_iBallMax < 1)    // 'l' was pressed
             m_iBallMax = 1;
-        
-        event.preventDefault();
-        return false;
     }
+    
+    event.preventDefault();
+    return false;
 }
 
 // Returns random color between iMin and iMax.
