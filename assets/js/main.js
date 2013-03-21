@@ -203,6 +203,11 @@ function showStartMenu(bVisible)
     }
 }
 
+function showInstructions(bVisible)
+{
+    
+}
+
 // Paints toolbar back to regular
 function paintToolbar(color)
 {
@@ -388,6 +393,9 @@ function doKeyDown(event) {
         
         else if (m_bGameStatus.multi)
             keyBoardDownMulti(event);
+        
+        event.preventDefault();
+        return false;
     }
 }
 
@@ -413,6 +421,9 @@ function doKeyUp(event)
             
         else if(event.keyCode == m_iKeyId.l && --m_iBallMax < 1)    // 'l' was pressed
             m_iBallMax = 1;
+        
+        event.preventDefault();
+        return false;
     }
 }
 
