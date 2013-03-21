@@ -203,11 +203,6 @@ function showStartMenu(bVisible)
     }
 }
 
-function showInstructions(bVisible)
-{
-    
-}
-
 // Paints toolbar back to regular
 function paintToolbar(color)
 {
