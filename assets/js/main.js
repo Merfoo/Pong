@@ -42,7 +42,7 @@ var m_IntervalId = { menu: null, game: null};
 var m_bGameStatus = { started: false, paused: false, single: false, multi: false};
 
 // Keys
-var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32, m: 77, f: 70, o: 79, l: 76};
+var m_iKeyId = { arrowUp: 38, arrowDown: 40, w: 87, s: 83, esc: 27, space: 32, m: 77, f: 70, o: 79, l: 76, h: 72};
 
 window.addEventListener('keydown', doKeyDown, true);
 window.addEventListener('keyup', doKeyUp, true);
@@ -388,6 +388,15 @@ function doKeyDown(event) {
         
         else if (m_bGameStatus.multi)
             keyBoardDownMulti(event);
+        
+        if(event.keyCode == m_iKeyId.o)    // 'o' was pressed
+            m_iBallMax++;
+            
+        if(event.keyCode == m_iKeyId.l && --m_iBallMax < 1)    // 'l' was pressed
+            m_iBallMax = 1;
+        
+        if(event.keyCode == m_iKeyId.h && m_iBalls.length < m_iBallMax)
+            m_iBalls.push(makeNewBall());
     }
     
     event.preventDefault();
@@ -410,12 +419,6 @@ function doKeyUp(event)
         
         else if(event.keyCode == m_iKeyId.f)    // 'f' was pressed
             setFlashEnabled(!m_iFlash.flashEnabled);
-        
-        else if(event.keyCode == m_iKeyId.o)    // 'o' was pressed
-            m_iBallMax++;
-            
-        else if(event.keyCode == m_iKeyId.l && --m_iBallMax < 1)    // 'l' was pressed
-            m_iBallMax = 1;
     }
     
     event.preventDefault();
