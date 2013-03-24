@@ -4,6 +4,9 @@
 var m_iMap;
 var m_iTitle;
 
+// Credits
+var m_Credits = { y: -600, startY: 100, minY: -600, yDecrease: 3, showing: false };
+
 // Middle line
 var m_iMiddleLine;
 
@@ -22,7 +25,7 @@ var m_iBalls = new Array();
 var m_iBallMax = 3;
 
 // Contains speed variables like menu, game
-var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33 };
+var m_iSpeed = { menu: 60, gameOriginal: 33, game: 33, credits: 33 };
 
 // Contains scores like current, highest
 var m_iScores = { one: 0, highestOne: 0, two: 0, color: "white"};
@@ -37,7 +40,7 @@ var m_Music;
 var m_CanvasContext;
 
 // Interval ID's
-var m_IntervalId = { menu: null, game: null};
+var m_IntervalId = { menu: null, game: null, credits: null};
 
 // Game status, like if it has started, which is current
 var m_bGameStatus = { started: false, paused: false, single: false, multi: false};
@@ -201,14 +204,21 @@ function showStartMenu(bVisible)
         resetGameStatus();
         resetScores();
         setFlashEnabled(false);
-        document.getElementById("startMenu").style.zIndex = 1;        
+        document.getElementById("startMenu").style.zIndex = 1;
+        m_Credits.showing = false;
+        
+        if(m_IntervalId.credits != null)
+        {
+            window.clearInterval(m_IntervalId.credits);
+            m_IntervalId.credits = null;
+        }
         //m_IntervalId.menu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
 
     else
     {
         //window.clearInterval(m_IntervalId.menu);
-        document.getElementById("startMenu").style.zIndex = -1;
+        document.getElementById("startMenu").style.zIndex = -1; 
         paintToolbar(m_iMap.toolbarColor);
         paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
         paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
@@ -348,6 +358,32 @@ function paintPaddle(iPaddle, color)
     paintTile(iPaddle.leftX, iPaddle.topY, iPaddle.rightX - iPaddle.leftX, iPaddle.bottomY - iPaddle.topY, color);
 }
 
+function clickedCredits()
+{
+    showStartMenu(false);
+    m_Credits.showing = true;
+    
+    if(m_IntervalId.credits != null)
+        window.clearInterval(m_IntervalId.credits);
+        
+    m_IntervalId.credits = window.setInterval("showCredits();", m_iSpeed.credits);
+    m_Credits.y = m_Credits.minY;
+}
+
+function showCredits()
+{
+    if(m_Credits.y <= m_Credits.minY)
+        m_Credits.y = m_iMap.height + m_Credits.startY;
+    
+    paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
+    m_CanvasContext.strokeStyle = "white";
+    m_CanvasContext.font = '40px san-serif';
+    m_CanvasContext.textBaseline = 'bottom';
+    m_CanvasContext.strokeText('Head Developer: Fauzi Kliman', Math.floor(m_iMap.width / 3), m_Credits.y);
+    m_CanvasContext.strokeText('Assistant Developer: Pedro Morais', Math.floor(m_iMap.width / 3), m_Credits.y + 200);
+    m_CanvasContext.strokeText('Assistant Developer: Jacob Payne', Math.floor(m_iMap.width / 3), m_Credits.y + 400);
+    m_Credits.y -= m_Credits.yDecrease;
+}
 // Shows pause pause if true, otherwise hides it.
 function showPausePic(bVisible)
 {
@@ -522,6 +558,10 @@ function doKeyUp(event)
             setFlashEnabled(!m_iFlash.flashEnabled);
     }
     
+    if(m_Credits.showing)
+       if (event.keyCode == m_iKeyId.esc) // Escape was pressed
+            showStartMenu(true);
+    
     event.preventDefault();
     return false;
 }
@@ -571,10 +611,6 @@ function removeIndex(index, array)
     
     return returnArray;
 }
-
-function setUpLetters()
-{
-} 
 
 function initializeBall()
 {
