@@ -2,6 +2,7 @@
 
 // Contains map width, map height, color and toolbar thickness
 var m_iMap;
+var m_iTitle;
 
 // Middle line
 var m_iMiddleLine;
@@ -55,14 +56,7 @@ function initializeGame()
 {
     setUpMusic();
     setCanvasSize();
-    setUpLetters();
-    
-    m_iMessageAlignment = 
-    {
-        left: 5,
-        middle: Math.floor(m_iMap.width / 2),
-        right: Math.floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
-    };
+    initializeLetters();
     
     alert("WARNING: If you have had epileptic seizures in the past, this game may cause one to occur again.\n\
             Play with Caution!");
@@ -135,6 +129,16 @@ function setCanvasSize()
         none: 0
     };
     
+    m_iTitle = 
+    {
+        coordinates: new Array(),
+        width: Math.floor(m_iMap.width / 60),
+        height: Math.floor(m_iMap.height / 30),
+        borderWidth: 2,
+        colorMin: 1,
+        colorMax: 255
+    };
+    
     var iMiddleX = Math.floor((m_iMap.width / 2) - (m_iMap.width / 250));
     var iMiddleHeight = Math.floor(m_iMap.height / 25);
     
@@ -145,6 +149,13 @@ function setCanvasSize()
         height: iMiddleHeight,
         spaceInBetween: 25,
         color: "gray"
+    };
+    
+    m_iMessageAlignment = 
+    {
+        left: 5,
+        middle: Math.floor(m_iMap.width / 2),
+        right: Math.floor((m_iMap.width / 2) + (m_iMap.width / 2) / 2)
     };
     
     m_CanvasContext.canvas.width = m_iMap.width;
@@ -185,20 +196,21 @@ function showStartMenu(bVisible)
 {
     if (bVisible)
     {
-        paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
+        paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
         showPausePic(false);
         resetGameStatus();
         resetScores();
         setFlashEnabled(false);
         document.getElementById("startMenu").style.zIndex = 1;        
-        m_IntervalMenu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
+        //m_IntervalId.menu = window.setInterval("paintStartMenu();", m_iSpeed.menu);
     }
 
     else
     {
+        //window.clearInterval(m_IntervalId.menu);
         document.getElementById("startMenu").style.zIndex = -1;
-        window.clearInterval(m_IntervalMenu);
         paintToolbar(m_iMap.toolbarColor);
+        paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
         paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
     }
 }
@@ -236,10 +248,99 @@ function paintBall(iBall, color, borderColor, borderThickness)
     m_CanvasContext.closePath();
 }
 
+// Paints a tile for the title
+function paintTitleTile(x, y, color)
+{
+    m_CanvasContext.fillStyle = color;
+    m_CanvasContext.fillRect(x * m_iTitle.width, y * m_iTitle.height, m_iTitle.width - (2 * m_iTitle.borderWidth), m_iTitle.height - (2 * m_iTitle.borderWidth));
+}
+
 function paintStartMenu()
 {
-    // Paints Whole screen black
-    paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.color);
+    for(var index = 0; index < m_iTitle.coordinates.length; index++)
+        paintTitleTile(m_iTitle.coordinates[index].x, m_iTitle.coordinates[index].y, getRandomColor(m_iTitle.colorMin, m_iTitle.colorMax));
+}
+
+function initializeLetters()
+{       
+    // P
+    m_iTitle.coordinates.push({ x: 19, y: 3});
+    m_iTitle.coordinates.push({ x: 18, y: 3});
+    m_iTitle.coordinates.push({ x: 17, y: 3});
+    m_iTitle.coordinates.push({ x: 16, y: 3});      
+    m_iTitle.coordinates.push({ x: 15, y: 3 });    // 5
+    m_iTitle.coordinates.push({ x: 15, y: 4 });
+    m_iTitle.coordinates.push({ x: 15, y: 5 });
+    m_iTitle.coordinates.push({ x: 15, y: 6 });
+    m_iTitle.coordinates.push({ x: 19, y: 6 });
+    m_iTitle.coordinates.push({ x: 18, y: 6 });    // 10
+    m_iTitle.coordinates.push({ x: 17, y: 6 });
+    m_iTitle.coordinates.push({ x: 16, y: 6 });
+    m_iTitle.coordinates.push({ x: 19, y: 7 });
+    m_iTitle.coordinates.push({ x: 19, y: 8 });
+    m_iTitle.coordinates.push({ x: 19, y: 9 });    // 15
+    m_iTitle.coordinates.push({ x: 15, y: 9 });
+    m_iTitle.coordinates.push({ x: 16, y: 9 });
+    m_iTitle.coordinates.push({ x: 17, y: 9 });
+    m_iTitle.coordinates.push({ x: 18, y: 9 });
+    m_iTitle.coordinates.push({ x: 19, y: 9 });    // 20
+
+    // O
+    m_iTitle.coordinates.push({ x: 21, y: 3 });
+    m_iTitle.coordinates.push({ x: 22, y: 3 });
+    m_iTitle.coordinates.push({ x: 23, y: 3 });
+    m_iTitle.coordinates.push({ x: 24, y: 3 });
+    m_iTitle.coordinates.push({ x: 25, y: 3 });    // 5
+    m_iTitle.coordinates.push({ x: 21, y: 4 });
+    m_iTitle.coordinates.push({ x: 21, y: 5 });
+    m_iTitle.coordinates.push({ x: 21, y: 6 });
+    m_iTitle.coordinates.push({ x: 21, y: 7 });
+    m_iTitle.coordinates.push({ x: 21, y: 8 });    // 10
+    m_iTitle.coordinates.push({ x: 21, y: 9 });
+    m_iTitle.coordinates.push({ x: 25, y: 4 });
+    m_iTitle.coordinates.push({ x: 25, y: 5 });
+    m_iTitle.coordinates.push({ x: 25, y: 6 });
+    m_iTitle.coordinates.push({ x: 25, y: 7 });    // 15
+    m_iTitle.coordinates.push({ x: 25, y: 8 });
+    m_iTitle.coordinates.push({ x: 25, y: 9 });
+
+    // N
+    m_iTitle.coordinates.push({ x: 30, y: 3 });
+    m_iTitle.coordinates.push({ x: 29, y: 3 });
+    m_iTitle.coordinates.push({ x: 28, y: 3 });
+    m_iTitle.coordinates.push({ x: 27, y: 4 });
+    m_iTitle.coordinates.push({ x: 27, y: 5 });    // 5
+    m_iTitle.coordinates.push({ x: 27, y: 6 });
+    m_iTitle.coordinates.push({ x: 27, y: 7 });
+    m_iTitle.coordinates.push({ x: 27, y: 8 });
+    m_iTitle.coordinates.push({ x: 27, y: 9 }); 
+    m_iTitle.coordinates.push({ x: 31, y: 4 });    // 10
+    m_iTitle.coordinates.push({ x: 31, y: 5 });
+    m_iTitle.coordinates.push({ x: 31, y: 6 });
+    m_iTitle.coordinates.push({ x: 31, y: 7 });
+    m_iTitle.coordinates.push({ x: 31, y: 8 });
+    m_iTitle.coordinates.push({ x: 31, y: 9 });    // 15
+    m_iTitle.coordinates.push({ x: 28, y: 6 });
+    m_iTitle.coordinates.push({ x: 29, y: 6 });
+    m_iTitle.coordinates.push({ x: 30, y: 6 });
+
+    // G
+    m_iTitle.coordinates.push({ x: 33, y: 3 });
+    m_iTitle.coordinates.push({ x: 33, y: 4 });
+    m_iTitle.coordinates.push({ x: 33, y: 5 });
+    m_iTitle.coordinates.push({ x: 33, y: 6 });
+    m_iTitle.coordinates.push({ x: 33, y: 7 });    // 5
+    m_iTitle.coordinates.push({ x: 33, y: 8 });
+    m_iTitle.coordinates.push({ x: 33, y: 9 });
+    m_iTitle.coordinates.push({ x: 27, y: 8 });
+    m_iTitle.coordinates.push({ x: 27, y: 9 });
+    m_iTitle.coordinates.push({ x: 34, y: 6 });    // 10
+    m_iTitle.coordinates.push({ x: 35, y: 5 });
+    m_iTitle.coordinates.push({ x: 35, y: 7 });
+    m_iTitle.coordinates.push({ x: 36, y: 4 });
+    m_iTitle.coordinates.push({ x: 36, y: 8 });
+    m_iTitle.coordinates.push({ x: 37, y: 3 });
+    m_iTitle.coordinates.push({ x: 37, y: 9 });    // 15
 }
 
 function paintPaddle(iPaddle, color)
