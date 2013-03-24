@@ -361,11 +361,7 @@ function paintPaddle(iPaddle, color)
 function clickedCredits()
 {
     showStartMenu(false);
-    m_Credits.showing = true;
-    
-    if(m_IntervalId.credits != null)
-        window.clearInterval(m_IntervalId.credits);
-        
+    m_Credits.showing = true;        
     m_IntervalId.credits = window.setInterval("showCredits();", m_iSpeed.credits);
     m_Credits.y = m_Credits.minY;
 }
@@ -376,12 +372,12 @@ function showCredits()
         m_Credits.y = m_iMap.height + m_Credits.startY;
     
     paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
-    m_CanvasContext.strokeStyle = "white";
+    m_CanvasContext.fillStyle = "white";
     m_CanvasContext.font = '40px san-serif';
     m_CanvasContext.textBaseline = 'bottom';
-    m_CanvasContext.strokeText('Head Developer: Fauzi Kliman', Math.floor(m_iMap.width / 3), m_Credits.y);
-    m_CanvasContext.strokeText('Assistant Developer: Pedro Morais', Math.floor(m_iMap.width / 3), m_Credits.y + 200);
-    m_CanvasContext.strokeText('Assistant Developer: Jacob Payne', Math.floor(m_iMap.width / 3), m_Credits.y + 400);
+    m_CanvasContext.fillText('Head Developer: Fauzi Kliman', Math.floor(m_iMap.width / 3), m_Credits.y);
+    m_CanvasContext.fillText('Assistant Developer: Pedro Morais', Math.floor(m_iMap.width / 3), m_Credits.y + 200);
+    m_CanvasContext.fillText('Assistant Developer: Jacob Payne', Math.floor(m_iMap.width / 3), m_Credits.y + 400);
     m_Credits.y -= m_Credits.yDecrease;
 }
 // Shows pause pause if true, otherwise hides it.
