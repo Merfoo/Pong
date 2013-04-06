@@ -19,6 +19,7 @@ function initializeSingle()
 // Runs all the functions required for the game to work.
 function gameLoopSingle() 
 {
+    clearMainScreen();
     playBackgroundMusic();
     runBackgroundFlashing();
     paintMiddleLine();
@@ -57,9 +58,8 @@ function gameLoopSingle()
     
     movePaddle(m_iPaddleOne);
     movePaddle(m_iPaddleTwo);
-    paintToolbar(m_iMap.toolbarColor);
-    writeMessage(m_iMessageAlignment.middle, "Balls on screen: " + m_iBalls.length, "white");
-    writeMessage(m_iMessageAlignment.middle + 250, "Ball Limit: " + m_iBallMax, "white");
+    writeMessage(m_iMessageAlignment.middle, "Balls on screen: " + m_iBalls.length, m_iScores.color);
+    writeMessage(m_iMessageAlignment.middle + 250, "Ball Limit: " + m_iBallMax, m_iScores.color);
     writeMessage(m_iMessageAlignment.left, "Player One: " + m_iScores.one, m_iScores.color);
     writeMessage(m_iMessageAlignment.left + 250, "Highest: " + m_iScores.highestOne, m_iScores.color);
 }

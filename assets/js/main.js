@@ -96,37 +96,16 @@ function setCanvasSize()
     var iMaxWidth;
     var iMaxHeight;
     m_CanvasContext = document.getElementById("myCanvas").getContext("2d");
-    
-    // The more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
-    if (typeof window.innerWidth != 'undefined')
-    {
-        iMaxWidth = window.innerWidth;
-        iMaxHeight = window.innerHeight;
-    }
-    
-    // IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document)
-    else if (typeof document.documentElement != 'undefined'
-		&& typeof document.documentElement.clientWidth != 'undefined'
-		&& document.documentElement.clientWidth != 0)
-    {
-        iMaxWidth = document.documentElement.clientWidth;
-        iMaxHeight = document.documentElement.clientHeight;
-    }
-
-    // Older versions of IE
-    else
-    {
-        iMaxWidth = document.getElementsByTagName('body')[0].clientWidth;
-        iMaxHeight = document.getElementsByTagName('body')[0].clientHeight;
-    }
+    m_CanvasContext.canvas.width = iMaxWidth = (window.innerWidth - Math.floor(window.innerWidth / 75)); 
+    m_CanvasContext.canvas.height = iMaxHeight = (window.innerHeight - Math.floor(window.innerHeight / 36));
     
     m_iMap = 
     {
         height: iMaxHeight, 
         width: iMaxWidth,
         toolbarThickness: Math.floor(iMaxHeight / 25),
-        toolbarColor: "black",
         backgroundColor: "black",
+        originalBackgroundColor: "black",
         right: 1,
         left: -1,
         none: 0
@@ -199,7 +178,7 @@ function showStartMenu(bVisible)
 {
     if (bVisible)
     {
-        paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
+        clearMainScreen();
         showPausePic(false);
         resetGameStatus();
         resetScores();
@@ -219,16 +198,8 @@ function showStartMenu(bVisible)
     {
         //window.clearInterval(m_IntervalId.menu);
         document.getElementById("startMenu").style.zIndex = -1; 
-        paintToolbar(m_iMap.toolbarColor);
-        paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
-        paintTile(0, m_iMap.toolbarThickness, m_iMap.width, m_iMap.height - m_iMap.toolbarThickness, m_iMap.backgroundColor);
+        clearMainScreen();
     }
-}
-
-// Paints toolbar back to regular
-function paintToolbar(color)
-{
-    paintTile(0, 0, m_iMap.width, m_iMap.toolbarThickness, color);
 }
 
 // Paint the line in the middle
@@ -263,6 +234,11 @@ function paintTitleTile(x, y, color)
 {
     m_CanvasContext.fillStyle = color;
     m_CanvasContext.fillRect(x * m_iTitle.width, y * m_iTitle.height, m_iTitle.width - (2 * m_iTitle.borderWidth), m_iTitle.height - (2 * m_iTitle.borderWidth));
+}
+
+function clearMainScreen()
+{
+    paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
 }
 
 function paintStartMenu()
@@ -373,7 +349,7 @@ function showCredits()
     
     paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
     m_CanvasContext.fillStyle = "white";
-    m_CanvasContext.font = '40px san-serif';
+    m_CanvasContext.font = (m_iMap.width / 40) + 'px san-serif';
     m_CanvasContext.textBaseline = 'bottom';
     m_CanvasContext.fillText('Head Developer: Fauzi Kliman', Math.floor(m_iMap.width / 3), m_Credits.y);
     m_CanvasContext.fillText('Assistant Developer: Pedro Morais', Math.floor(m_iMap.width / 3), m_Credits.y + 200);
@@ -477,8 +453,6 @@ function playBallMusic()
 // Handles the ball hitting the wall boundaries.
 function setUpBall(iBall, ballColor)
 { 
-    paintBall(iBall, iBall.beforeColor, iBall.beforeColor, 0);
-    
     // Checks if the ball has collided with the walls
     if ((iBall.y - iBall.radius <= m_iMap.toolbarThickness && iBall.yV < 0) || (iBall.y + iBall.radius >= m_iMap.height && iBall.yV > 0))
          iBall.yV = -iBall.yV;
@@ -630,7 +604,7 @@ function makeNewBall()
         xV: getRandomNumber(1, 10) > 5 ? iBallRadius : -iBallRadius,
         yV: getRandomNumber(1, 10) > 5 ? getRandomNumber(0, iBallRadius * 2) : -getRandomNumber(0, iBallRadius * 2),
         maxVelocity: iBallMaxVelocity,
-        color: "white",
+        color: getRandomColor(1, 255),
         beforeColor: m_iMap.backgroundColor
     };
     
@@ -641,8 +615,8 @@ function makeNewBall()
 function initializePaddles()
 {
     var iPaddleV = 3;
-    var iPaddleMaxV = 24;
-    var iPaddleThickness = Math.floor(m_iMap.width / 75);
+    var iPaddleMaxV = 13;
+    var iPaddleThickness = Math.floor(m_iMap.width / 125);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;
     
@@ -730,9 +704,7 @@ function movePaddle(iPaddle)
     var iCompensator = 10;
     
     if(iPaddle.up || iPaddle.down)
-    {
-        paintPaddle(iPaddle, m_iMap.backgroundColor);
-        
+    {        
         if(iPaddle.up)
         {
             if(iPaddle.velocity > 0)
@@ -772,19 +744,15 @@ function runBackgroundFlashing()
         m_iFlash.current += m_iSpeed.game;
 
         if(m_iFlash.current <= m_iFlash.limit)
-        {
-            var cNewBackground = getRandomColor(1, 255); 
-            paintTile(0, 0, m_iMap.width, m_iMap.height, cNewBackground);
+        { 
+            m_iMap.backgroundColor = getRandomColor(1, 255);
 
             for(var index = 0; index < m_iBalls.length; index++)
-            {
                 m_iBalls[index].color = getRandomColor(1, 255);
-                m_iBalls[index].beforeColor = cNewBackground;
-            }
 
-            m_iMiddleLine.color = m_iMap.backgroundColor;
-            m_iPaddleOne.color = m_iMap.backgroundColor;
-            m_iPaddleTwo.color = m_iMap.backgroundColor;
+            m_iMiddleLine.color = m_iMap.originalBackgroundColor;
+            m_iPaddleOne.color = m_iMap.originalBackgroundColor;
+            m_iPaddleTwo.color = m_iMap.originalBackgroundColor;
         }
 
         else
@@ -798,15 +766,12 @@ function runBackgroundFlashing()
     {
         if(!m_iFlash.colorReseted)
         {
-            paintTile(0, 0, m_iMap.width, m_iMap.height, m_iMap.backgroundColor);
+            m_iMap.backgroundColor = m_iMap.originalBackgroundColor;
             m_iFlash.colorReseted = true;
         }
 
         for(var index = 0; index < m_iBalls.length; index++)
-        {    
             m_iBalls[index].color = getRandomColor(1, 255);
-            m_iBalls[index].beforeColor = m_iMap.backgroundColor;
-        }
 
         m_iPaddleOne.color = getRandomColor(1, 255);
         m_iPaddleTwo.color = getRandomColor(1, 255);
