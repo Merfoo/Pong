@@ -616,7 +616,7 @@ function initializePaddles()
 {
     var iPaddleV = 3;
     var iPaddleMaxV = 13;
-    var iPaddleThickness = Math.floor(m_iMap.width / 125);
+    var iPaddleThickness = Math.floor(m_iMap.width / 100);
     var iPaddleLenght = Math.floor(m_iMap.height / 4);
     var iPaddleDistance = 5;
     
